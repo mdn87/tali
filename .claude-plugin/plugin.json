@@ -1,0 +1,18 @@
+{
+  "name": "tali",
+  "version": "0.1.0",
+  "description": "Voice mutation and multi-voice publishing: rewrite documents into defined voices for target audiences with strict fidelity, run multi-voice review rounds, and publish comparison sites and PDF manuals.",
+  "author": {
+    "name": "mdn87",
+    "url": "https://github.com/mdn87"
+  },
+  "license": "MIT",
+  "keywords": [
+    "writing",
+    "voice",
+    "audience",
+    "documentation",
+    "publishing",
+    "style"
+  ]
+}

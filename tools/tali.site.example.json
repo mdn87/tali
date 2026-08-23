@@ -1,0 +1,94 @@
+{
+  "_comment": "Example site config for the tali voice-publish tools (build_page.py, build_site.py, build_pdf.py). Copy this file to tali.site.json next to your page, edit the values, and run the scripts with --config pointing at it (or from its directory, where it is found by default). Keys beginning with an underscore are comments and are ignored by the scripts. All paths are relative to the directory containing this file.",
+
+  "_comment_page": "[build_page, build_site, build_pdf] The single-page HTML shell that holds the generated content. It must already exist and contain <section class=\"doc\" id=\"doc-<id>\"> blocks, a <div class=\"brand\">...</div> header, a <div class=\"sub\">...</div> subtitle, and a <nav class=\"side\"> nav (used for the PDF table of contents).",
+  "page": "handbook.html",
+
+  "_comment_sources_root": "[build_page] Root directory for the markdown sources listed in section_sources.",
+  "sources_root": "docs",
+
+  "_comment_section_sources": "[build_page] Section id -> markdown file (relative to sources_root). Each id must match an existing <section id=\"doc-<id>\"> in the page. Sections in the page that are not listed here are preserved exactly as they are.",
+  "section_sources": {
+    "intro": "README.md",
+    "getting-started": "guides/GETTING_STARTED.md",
+    "reference": "guides/REFERENCE.md",
+    "faq": "guides/FAQ.md"
+  },
+
+  "_comment_link_map": "[build_page] Markdown link target (file basename) -> in-page anchor. Links to local files not listed here are unlinked (the label is kept, the link dropped); http(s) URLs and #anchors pass through unchanged.",
+  "link_map": {
+    "README.md": "#intro",
+    "GETTING_STARTED.md": "#getting-started",
+    "REFERENCE.md": "#reference",
+    "FAQ.md": "#faq"
+  },
+
+  "_comment_chips": "[build_page] Status-chip label set, checked in order. A paragraph that starts with <strong>label</strong> (with or without a trailing period) is rewritten to <span class=\"chip <class>\">label</span>; the page's own CSS must define .chip.<class>. Optional — omit or leave empty for no chips.",
+  "chips": [
+    { "label": "Recommended", "class": "ok" },
+    { "label": "Use with care", "class": "cond" },
+    { "label": "Ask first", "class": "case" },
+    { "label": "Not recommended", "class": "no" }
+  ],
+
+  "_comment_skip_prefixes": "[build_page] Markdown lines starting with any of these strings are dropped during conversion (frontmatter-style metadata lines). Optional.",
+  "skip_prefixes": ["**Status:**", "**Owner:**"],
+
+  "_comment_site_dir": "[build_site, build_pdf] Output directory for the assembled site, relative to this file. build_pdf also copies the PDF here when the directory exists.",
+  "site_dir": "site",
+
+  "_comment_covers": "[build_site] Per-version cover swap. If covers_dir/<cover_section>-<key>.md exists for a version key, that markdown replaces the body of <section id=\"doc-<cover_section>\"> in that version, so each voice can introduce itself. Optional — omit covers_dir to disable.",
+  "covers_dir": "covers",
+  "cover_section": "overview",
+
+  "_comment_page_repo_path": "[build_site] Repo-relative path of the page file, used as `git show <ref>:<page_repo_path>` for versions whose ref is not null. Required only when such versions exist.",
+  "page_repo_path": "docs/handbook.html",
+
+  "_comment_versions": "[build_site] One entry per prose version, in switcher order. key: short id, also selects the cover file; file: output filename in site_dir; url: switcher link target; label: switcher button text; subtitle_suffix: appended to the page's <div class=\"sub\"> subtitle; ref: null builds from the local page file (run build_page.py first), a commit hash pins the prose to that commit forever, a branch name tracks that branch's latest commit.",
+  "versions": [
+    {
+      "_comment": "Original prose, pinned to the commit made just before the first voice pass so it never changes.",
+      "key": "orig",
+      "file": "original.html",
+      "url": "/original",
+      "label": "Original",
+      "subtitle_suffix": " · original prose",
+      "ref": "a1b2c3d"
+    },
+    {
+      "_comment": "Plain voice: the current working tree, served as the site index.",
+      "key": "plain",
+      "file": "index.html",
+      "url": "/",
+      "label": "Plain",
+      "subtitle_suffix": "",
+      "ref": null
+    },
+    {
+      "_comment": "Casual voice: lives on its own branch so the comparison survives merges to main.",
+      "key": "casual",
+      "file": "casual.html",
+      "url": "/casual",
+      "label": "Casual",
+      "subtitle_suffix": " · casual voice",
+      "ref": "voice-casual"
+    }
+  ],
+
+  "_comment_static_assets": "[build_site] Extra files copied into site_dir when they exist next to this config (missing files are silently skipped).",
+  "static_assets": ["robots.txt", "_headers", "handbook.pdf"],
+
+  "_comment_pdf": "[build_pdf] Output PDF filename, relative to this file.",
+  "pdf": "handbook.pdf",
+
+  "_comment_pdf_label": "[build_pdf] Default edition label shown on the title page; override per run with --label.",
+  "pdf_label": "draft",
+
+  "_comment_title_page": "[build_pdf] Title-page text, rendered top to bottom as: <h1>title</h1>, subtitle line, '<source> · <label>' line, note line. Empty or omitted fields are skipped.",
+  "title_page": {
+    "title": "Team Handbook",
+    "subtitle": "A working guide to how the team operates",
+    "source": "docs/handbook",
+    "note": "Compiled for internal review"
+  }
+}

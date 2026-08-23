@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "tali",
+  "description": "Documents and content shaped for the people who will read them.",
+  "owner": {
+    "name": "mdn87",
+    "url": "https://github.com/mdn87"
+  },
+  "plugins": [
+    {
+      "name": "tali",
+      "description": "Voice mutation, multi-voice review rounds, and comparison publishing for audience-facing documents.",
+      "source": "./",
+      "category": "productivity"
+    }
+  ]
+}
