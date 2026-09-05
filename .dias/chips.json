@@ -1,0 +1,140 @@
+{
+  "schemaVersion": 1,
+  "projectId": "tali",
+  "projectLabel": "Tali",
+  "chips": [
+    {
+      "schemaVersion": 1,
+      "chipId": "tali:initial-plugin",
+      "projectId": "tali",
+      "title": "Initial tali plugin",
+      "summary": "voice-mutate, voice-review and voice-publish skills plus the page, site and PDF build tools, extracted from a 26-document by 3-voice production round.",
+      "stage": "done",
+      "sequence": 10,
+      "prereqs": [],
+      "linkedRunIds": [],
+      "confidence": "reported",
+      "aheadOfPrereqs": null,
+      "timestamps": {
+        "createdAt": "2026-08-23T12:00:00.000Z",
+        "updatedAt": "2026-09-05T03:40:00.000Z"
+      },
+      "evidence": [
+        {
+          "entryId": "tali:initial-plugin:authored-2026-09-05",
+          "at": "2026-09-05T03:40:00.000Z",
+          "kind": "created",
+          "message": "Single initial commit 2026-08-23; no commits since."
+        }
+      ]
+    },
+    {
+      "schemaVersion": 1,
+      "chipId": "tali:masq-integration-doc",
+      "projectId": "tali",
+      "title": "masq profiles as voice specs",
+      "summary": "Documented how a masq profile or tone style guide serves as a voice spec, so interactive personas and published voices share one source.",
+      "stage": "done",
+      "sequence": 20,
+      "prereqs": [
+        "tali:initial-plugin"
+      ],
+      "linkedRunIds": [],
+      "confidence": "reported",
+      "aheadOfPrereqs": null,
+      "timestamps": {
+        "createdAt": "2026-08-23T12:00:00.000Z",
+        "updatedAt": "2026-09-05T03:40:00.000Z"
+      },
+      "evidence": [
+        {
+          "entryId": "tali:masq-integration-doc:authored-2026-09-05",
+          "at": "2026-09-05T03:40:00.000Z",
+          "kind": "created",
+          "message": "Integration note shipped with the initial commit."
+        }
+      ]
+    },
+    {
+      "schemaVersion": 1,
+      "chipId": "tali:define-repeatable-validation",
+      "projectId": "tali",
+      "title": "Define repeatable fidelity validation",
+      "summary": "A fidelity check anyone can rerun on a document set with pass or fail output, replacing the one-off adversarial review from the originating round.",
+      "stage": "ready",
+      "sequence": 30,
+      "prereqs": [
+        "tali:initial-plugin"
+      ],
+      "linkedRunIds": [],
+      "confidence": "reported",
+      "aheadOfPrereqs": null,
+      "timestamps": {
+        "createdAt": "2026-09-05T12:00:00.000Z",
+        "updatedAt": "2026-09-05T03:40:00.000Z"
+      },
+      "evidence": [
+        {
+          "entryId": "tali:define-repeatable-validation:authored-2026-09-05",
+          "at": "2026-09-05T03:40:00.000Z",
+          "kind": "created",
+          "message": "Named as the next step by the 2026-09-05 status reassessment."
+        }
+      ]
+    },
+    {
+      "schemaVersion": 1,
+      "chipId": "tali:install-outside-origin",
+      "projectId": "tali",
+      "title": "Prove installation outside the origin",
+      "summary": "Install from the marketplace on a clean machine and run voice-mutate on a document from a different campaign.",
+      "stage": "planned",
+      "sequence": 40,
+      "prereqs": [
+        "tali:define-repeatable-validation"
+      ],
+      "linkedRunIds": [],
+      "confidence": "reported",
+      "aheadOfPrereqs": null,
+      "timestamps": {
+        "createdAt": "2026-09-05T12:00:00.000Z",
+        "updatedAt": "2026-09-05T03:40:00.000Z"
+      },
+      "evidence": [
+        {
+          "entryId": "tali:install-outside-origin:authored-2026-09-05",
+          "at": "2026-09-05T03:40:00.000Z",
+          "kind": "created",
+          "message": "Second half of the status remaining summary."
+        }
+      ]
+    },
+    {
+      "schemaVersion": 1,
+      "chipId": "tali:second-campaign-reuse",
+      "projectId": "tali",
+      "title": "Reuse on a second campaign",
+      "summary": "Run the full multi-voice round on a second real document campaign and compare effort against the first.",
+      "stage": "vague",
+      "sequence": 50,
+      "prereqs": [
+        "tali:install-outside-origin"
+      ],
+      "linkedRunIds": [],
+      "confidence": "unknown",
+      "aheadOfPrereqs": null,
+      "timestamps": {
+        "createdAt": "2026-09-05T12:00:00.000Z",
+        "updatedAt": "2026-09-05T03:40:00.000Z"
+      },
+      "evidence": [
+        {
+          "entryId": "tali:second-campaign-reuse:authored-2026-09-05",
+          "at": "2026-09-05T03:40:00.000Z",
+          "kind": "created",
+          "message": "Direction only; no campaign selected."
+        }
+      ]
+    }
+  ]
+}

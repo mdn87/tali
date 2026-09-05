@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "projectId": "tali",
+  "projectLabel": "Tali",
+  "assessmentState": "scored",
+  "assessmentScope": "current-milestone",
+  "percentComplete": 78,
+  "milestonePhase": "build-and-validate",
+  "portfolioGroup": "document-systems",
+  "displayPriority": 500,
+  "assessedAt": "2026-09-05T02:19:00.000Z",
+  "confidence": "reported",
+  "currentMilestone": "Production-derived voice mutation, fidelity review, comparison publishing, and PDF/site build plugin.",
+  "remainingSummary": "Add repeatable validation and prove installation and reuse outside the originating document campaign.",
+  "nextChipId": "tali:define-repeatable-validation",
+  "source": {
+    "label": "MDN87 project progress report updated 2026-08-27",
+    "updatedAt": "2026-08-27"
+  }
+}
