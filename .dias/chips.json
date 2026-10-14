@@ -17,7 +17,7 @@
       "aheadOfPrereqs": null,
       "timestamps": {
         "createdAt": "2026-08-23T12:00:00.000Z",
-        "updatedAt": "2026-09-05T03:40:00.000Z"
+        "updatedAt": "2026-09-27T22:00:00.000Z"
       },
       "evidence": [
         {
@@ -25,6 +25,12 @@
           "at": "2026-09-05T03:40:00.000Z",
           "kind": "created",
           "message": "Single initial commit 2026-08-23; no commits since."
+        },
+        {
+          "entryId": "tali:initial-plugin:note-2026-09-27",
+          "at": "2026-09-27T22:00:00.000Z",
+          "kind": "note",
+          "message": "Plugin content is unchanged since the initial commit; the only later commit authored the chip board. Two commits total, main level with the remote."
         }
       ]
     },
@@ -44,7 +50,7 @@
       "aheadOfPrereqs": null,
       "timestamps": {
         "createdAt": "2026-08-23T12:00:00.000Z",
-        "updatedAt": "2026-09-05T03:40:00.000Z"
+        "updatedAt": "2026-09-27T22:00:00.000Z"
       },
       "evidence": [
         {
@@ -52,6 +58,39 @@
           "at": "2026-09-05T03:40:00.000Z",
           "kind": "created",
           "message": "Integration note shipped with the initial commit."
+        },
+        {
+          "entryId": "tali:masq-integration-doc:note-2026-09-27",
+          "at": "2026-09-27T22:00:00.000Z",
+          "kind": "note",
+          "message": "In live use: the masq dean and de-tell profiles defer to tali for document voice passes and name its AI-ism flag list as the companion to keep in sync."
+        }
+      ]
+    },
+    {
+      "schemaVersion": 1,
+      "chipId": "tali:marketplace-install",
+      "projectId": "tali",
+      "title": "Publish and install through the plugin marketplace",
+      "summary": "Repo pushed to the public remote, registered as a marketplace, and installed on the authoring machine; all three skills resolve in live sessions.",
+      "stage": "done",
+      "sequence": 30,
+      "prereqs": [
+        "tali:initial-plugin"
+      ],
+      "linkedRunIds": [],
+      "confidence": "reported",
+      "aheadOfPrereqs": null,
+      "timestamps": {
+        "createdAt": "2026-09-27T22:00:00.000Z",
+        "updatedAt": "2026-09-27T22:00:00.000Z"
+      },
+      "evidence": [
+        {
+          "entryId": "tali:marketplace-install:created-2026-09-27",
+          "at": "2026-09-27T22:00:00.000Z",
+          "kind": "created",
+          "message": "Marketplace clone dated 2026-08-23 sits at the initial commit; the plugin is enabled in user settings and its skills load in the session that authored this board."
         }
       ]
     },
@@ -61,8 +100,8 @@
       "projectId": "tali",
       "title": "Define repeatable fidelity validation",
       "summary": "A fidelity check anyone can rerun on a document set with pass or fail output, replacing the one-off adversarial review from the originating round.",
-      "stage": "ready",
-      "sequence": 30,
+      "stage": "done",
+      "sequence": 40,
       "prereqs": [
         "tali:initial-plugin"
       ],
@@ -71,7 +110,7 @@
       "aheadOfPrereqs": null,
       "timestamps": {
         "createdAt": "2026-09-05T12:00:00.000Z",
-        "updatedAt": "2026-09-05T03:40:00.000Z"
+        "updatedAt": "2026-10-13T12:00:00.000Z"
       },
       "evidence": [
         {
@@ -79,6 +118,18 @@
           "at": "2026-09-05T03:40:00.000Z",
           "kind": "created",
           "message": "Named as the next step by the 2026-09-05 status reassessment."
+        },
+        {
+          "entryId": "tali:define-repeatable-validation:note-2026-09-27",
+          "at": "2026-09-27T22:00:00.000Z",
+          "kind": "note",
+          "message": "No work since 2026-09-05. The skills still describe an agent-run adversarial review; the repo has no script, fixture, or test that emits a pass or fail result."
+        },
+        {
+          "entryId": "tali:define-repeatable-validation:stage-done-2026-10-13",
+          "at": "2026-10-13T12:00:00.000Z",
+          "kind": "stage-change",
+          "message": "Added a rerunnable fidelity check with pass or fail exit status, an example config, a good and a broken fixture voice, and 12 passing tests; skills now require it."
         }
       ]
     },
@@ -87,10 +138,11 @@
       "chipId": "tali:install-outside-origin",
       "projectId": "tali",
       "title": "Prove installation outside the origin",
-      "summary": "Install from the marketplace on a clean machine and run voice-mutate on a document from a different campaign.",
+      "summary": "Install from the marketplace on a machine that never held the source clone and run voice-mutate on a document from a different campaign.",
       "stage": "planned",
-      "sequence": 40,
+      "sequence": 50,
       "prereqs": [
+        "tali:marketplace-install",
         "tali:define-repeatable-validation"
       ],
       "linkedRunIds": [],
@@ -98,7 +150,7 @@
       "aheadOfPrereqs": null,
       "timestamps": {
         "createdAt": "2026-09-05T12:00:00.000Z",
-        "updatedAt": "2026-09-05T03:40:00.000Z"
+        "updatedAt": "2026-09-27T22:00:00.000Z"
       },
       "evidence": [
         {
@@ -106,6 +158,12 @@
           "at": "2026-09-05T03:40:00.000Z",
           "kind": "created",
           "message": "Second half of the status remaining summary."
+        },
+        {
+          "entryId": "tali:install-outside-origin:note-2026-09-27",
+          "at": "2026-09-27T22:00:00.000Z",
+          "kind": "note",
+          "message": "Marketplace install is proven only on the authoring machine. No clean-machine install and no run against a non-origin document have been attempted."
         }
       ]
     },
@@ -116,7 +174,7 @@
       "title": "Reuse on a second campaign",
       "summary": "Run the full multi-voice round on a second real document campaign and compare effort against the first.",
       "stage": "vague",
-      "sequence": 50,
+      "sequence": 60,
       "prereqs": [
         "tali:install-outside-origin"
       ],
@@ -125,7 +183,7 @@
       "aheadOfPrereqs": null,
       "timestamps": {
         "createdAt": "2026-09-05T12:00:00.000Z",
-        "updatedAt": "2026-09-05T03:40:00.000Z"
+        "updatedAt": "2026-09-27T22:00:00.000Z"
       },
       "evidence": [
         {
@@ -133,6 +191,12 @@
           "at": "2026-09-05T03:40:00.000Z",
           "kind": "created",
           "message": "Direction only; no campaign selected."
+        },
+        {
+          "entryId": "tali:second-campaign-reuse:note-2026-09-27",
+          "at": "2026-09-27T22:00:00.000Z",
+          "kind": "note",
+          "message": "Still no campaign selected. No project in the workspace carries a site config for the publish tools besides the example shipped with the plugin."
         }
       ]
     }
