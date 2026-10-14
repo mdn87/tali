@@ -83,7 +83,7 @@
       "aheadOfPrereqs": null,
       "timestamps": {
         "createdAt": "2026-09-27T22:00:00.000Z",
-        "updatedAt": "2026-10-13T22:30:00.000Z"
+        "updatedAt": "2026-10-14T03:00:00.000Z"
       },
       "evidence": [
         {
@@ -97,6 +97,12 @@
           "at": "2026-10-13T22:30:00.000Z",
           "kind": "note",
           "message": "Correction: the GitHub repository is private, not public. A machine outside the origin needs credentials that can read it, or the repo must be made public."
+        },
+        {
+          "entryId": "tali:marketplace-install:note-2026-10-14",
+          "at": "2026-10-14T03:00:00.000Z",
+          "kind": "note",
+          "message": "Repository made public on the owner's decision; the authoring machine's install updated from 0.1.0 to 0.2.0 and now carries all seven tools."
         }
       ]
     },
@@ -183,7 +189,7 @@
       "aheadOfPrereqs": null,
       "timestamps": {
         "createdAt": "2026-09-05T12:00:00.000Z",
-        "updatedAt": "2026-09-27T22:00:00.000Z"
+        "updatedAt": "2026-10-14T03:00:00.000Z"
       },
       "evidence": [
         {
@@ -197,6 +203,12 @@
           "at": "2026-09-27T22:00:00.000Z",
           "kind": "note",
           "message": "Marketplace install is proven only on the authoring machine. No clean-machine install and no run against a non-origin document have been attempted."
+        },
+        {
+          "entryId": "tali:install-outside-origin:note-2026-10-14",
+          "at": "2026-10-14T03:00:00.000Z",
+          "kind": "note",
+          "message": "Unblocked on access: the repo is public, so a machine that never held the clone can run the marketplace add without credentials. Still not attempted."
         }
       ]
     },

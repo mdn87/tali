@@ -8,10 +8,10 @@
   "milestonePhase": "build-and-validate",
   "portfolioGroup": "document-systems",
   "displayPriority": 500,
-  "assessedAt": "2026-10-13T22:30:00.000Z",
+  "assessedAt": "2026-10-14T03:00:00.000Z",
   "confidence": "reported",
   "currentMilestone": "Shipped plugin: voice mutation, multi-voice fidelity review, comparison publishing and PDF build tools, installed through the marketplace and consumed by masq personas.",
-  "remainingSummary": "Tooling, checks, example and docs shipped at 0.2.0. Remaining: decide repo visibility, update the local install, prove a clean-machine install, reuse on a second campaign.",
+  "remainingSummary": "Tooling, checks, example and docs shipped at 0.2.0; repo public; local install current. Remaining: prove a clean-machine install, then reuse on a second campaign.",
   "nextChipId": "tali:install-outside-origin",
   "source": {
     "label": "Session on 2026-10-13: completeness review, then all three tiers of gaps closed and tested",
