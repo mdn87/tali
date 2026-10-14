@@ -83,7 +83,7 @@
       "aheadOfPrereqs": null,
       "timestamps": {
         "createdAt": "2026-09-27T22:00:00.000Z",
-        "updatedAt": "2026-09-27T22:00:00.000Z"
+        "updatedAt": "2026-10-13T22:30:00.000Z"
       },
       "evidence": [
         {
@@ -91,6 +91,12 @@
           "at": "2026-09-27T22:00:00.000Z",
           "kind": "created",
           "message": "Marketplace clone dated 2026-08-23 sits at the initial commit; the plugin is enabled in user settings and its skills load in the session that authored this board."
+        },
+        {
+          "entryId": "tali:marketplace-install:note-2026-10-13",
+          "at": "2026-10-13T22:30:00.000Z",
+          "kind": "note",
+          "message": "Correction: the GitHub repository is private, not public. A machine outside the origin needs credentials that can read it, or the repo must be made public."
         }
       ]
     },
@@ -130,6 +136,33 @@
           "at": "2026-10-13T12:00:00.000Z",
           "kind": "stage-change",
           "message": "Added a rerunnable fidelity check with pass or fail exit status, an example config, a good and a broken fixture voice, and 12 passing tests; skills now require it."
+        }
+      ]
+    },
+    {
+      "schemaVersion": 1,
+      "chipId": "tali:completeness-followup",
+      "projectId": "tali",
+      "title": "Close the completeness-review gaps",
+      "summary": "Scaffold and page template, fidelity check over git refs and skeleton files, de-tell lint, round templates, worked example, quickstart, build-tool tests and CI.",
+      "stage": "done",
+      "sequence": 45,
+      "prereqs": [
+        "tali:define-repeatable-validation"
+      ],
+      "linkedRunIds": [],
+      "confidence": "reported",
+      "aheadOfPrereqs": null,
+      "timestamps": {
+        "createdAt": "2026-10-13T22:30:00.000Z",
+        "updatedAt": "2026-10-13T22:30:00.000Z"
+      },
+      "evidence": [
+        {
+          "entryId": "tali:completeness-followup:created-2026-10-13",
+          "at": "2026-10-13T22:30:00.000Z",
+          "kind": "created",
+          "message": "Opened and closed in one session from the 2026-10-13 completeness review; 13 findings, 12 closed. Repo visibility and the local install update stay with the owner."
         }
       ]
     },
