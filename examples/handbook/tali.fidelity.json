@@ -1,0 +1,23 @@
+{
+  "_comment": "Fidelity-check config for the worked example. Per-document verbatim items live in the skeletons; the lists below hold the set-wide phrases so the check reads on its own. Run: python <tali>/tools/check_fidelity.py from this directory.",
+  "sources_root": "docs",
+  "voices": {
+    "plain": "voices/plain"
+  },
+  "skeletons_dir": "skeletons",
+  "fidelity": {
+    "all": [
+      "Tier 1",
+      "Tier 2",
+      "Tier 3",
+      "public or fully synthetic data",
+      "reduces exposure but is not a sandbox",
+      "only when the sync service is running"
+    ],
+    "documents": {
+      "guides/setup.md": ["desktop app does not read that file"],
+      "policy/data-handling.md": ["does nothing to inspect the content of a file"]
+    }
+  },
+  "waivers": []
+}

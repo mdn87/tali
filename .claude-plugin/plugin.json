@@ -1,6 +1,6 @@
 {
   "name": "tali",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Voice mutation and multi-voice publishing: rewrite documents into defined voices for target audiences with strict fidelity, run multi-voice review rounds, and publish comparison sites and PDF manuals.",
   "author": {
     "name": "mdn87",

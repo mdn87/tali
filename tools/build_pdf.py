@@ -3,35 +3,55 @@
 
 Unhides every section, strips the single-page-app JS, adds print styling,
 and generates the title page and contents from the page's own nav so the
-manual can never drift from the site. Rendering uses headless Chrome or
-Edge. The page filename, PDF filename, title-page text, and default
-edition label all come from the JSON site config; if the config's site
-directory exists, the PDF is copied there too.
+manual can never drift from the site. Rendering uses headless Chrome, Edge,
+or Chromium, found on the usual paths for Windows, macOS, and Linux, on PATH,
+or given explicitly. The page filename, PDF filename, title-page text, and
+default edition label all come from the JSON site config; if the config's
+site directory exists, the PDF is copied there too.
 
-Usage:  python build_pdf.py [--config tali.site.json] [--label "draft 2026-08-23"]
+Usage:
+    python build_pdf.py [--config tali.site.json] [--label "draft 2026-08-23"]
+    python build_pdf.py --page site/casual.html --pdf handbook-casual.pdf   # one voice
+    python build_pdf.py --chrome "/path/to/chrome"      # or set TALI_CHROME
+
+Exit status: 0 ok, 1 the browser did not produce a PDF, 2 config error.
 """
 
 import argparse
-import json
 import os
 import re
 import shutil
 import subprocess
+import sys
 import tempfile
 
-DEFAULT_CONFIG = "tali.site.json"
+HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
+from build_page import DEFAULT_CONFIG, ConfigError, load_config, require  # noqa: E402
 
 CHROME_CANDIDATES = [
     r"C:\Program Files\Google\Chrome\Application\chrome.exe",
+    r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
+    os.path.join(os.environ.get("LOCALAPPDATA", ""), r"Google\Chrome\Application\chrome.exe"),
+    r"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
     r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
+    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+    "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
+    "/Applications/Chromium.app/Contents/MacOS/Chromium",
     "/usr/bin/google-chrome",
+    "/usr/bin/google-chrome-stable",
     "/usr/bin/chromium",
+    "/usr/bin/chromium-browser",
+    "/usr/bin/microsoft-edge",
+    "/snap/bin/chromium",
 ]
+CHROME_NAMES = ["google-chrome", "google-chrome-stable", "chromium", "chromium-browser",
+                "chrome", "msedge", "microsoft-edge"]
 
 PRINT_CSS = """
 <style>
   html, body { background:#FFFFFF; }
-  .side, .pager, #pager { display:none !important; }
+  .side, .pager, #pager, .vswitch { display:none !important; }
   .app { display:block !important; }
   main { margin:0 !important; max-width:100% !important; padding:0 !important; }
   section.doc {
@@ -63,31 +83,24 @@ PRINT_CSS = """
 """
 
 
-def _strip_comments(node):
-    """Drop keys starting with "_" so the commented example config loads as-is."""
-    if isinstance(node, dict):
-        return {k: _strip_comments(v) for k, v in node.items() if not k.startswith("_")}
-    if isinstance(node, list):
-        return [_strip_comments(v) for v in node]
-    return node
-
-
-def load_config(path):
-    if not os.path.exists(path):
-        raise SystemExit(
-            f"config not found: {path} — pass --config PATH or create one "
-            "(see tali.site.example.json)"
-        )
-    cfg = _strip_comments(json.load(open(path, encoding="utf-8")))
-    cfg["_dir"] = os.path.dirname(os.path.abspath(path))
-    return cfg
-
-
-def find_chrome():
+def find_chrome(explicit=None):
+    """The browser binary: explicit flag, TALI_CHROME, known paths, then PATH."""
+    for c in (explicit, os.environ.get("TALI_CHROME")):
+        if c:
+            if os.path.exists(c) or shutil.which(c):
+                return c
+            raise ConfigError(f"browser not found: {c}")
     for c in CHROME_CANDIDATES:
-        if os.path.exists(c):
+        if c and os.path.exists(c):
             return c
-    raise SystemExit("no headless Chrome/Edge found")
+    for name in CHROME_NAMES:
+        found = shutil.which(name)
+        if found:
+            return found
+    raise ConfigError(
+        "no headless Chrome, Edge, or Chromium found; install one, put it on PATH, "
+        "pass --chrome PATH, or set TALI_CHROME"
+    )
 
 
 def build_toc(page):
@@ -128,7 +141,54 @@ def title_block(cfg, label, toc):
 """
 
 
-def main():
+def print_html(page, cfg, label):
+    """The page rewritten for print: every section shown, no SPA script,
+    print CSS, and the generated title page and contents up front."""
+    front = title_block(cfg, label, build_toc(page))
+
+    out = page.replace('" hidden>', '">')
+    out = re.sub(r"<script>.*?</script>", "", out, flags=re.DOTALL)
+    if "</style>" in out:
+        out = out.replace("</style>", "</style>\n" + PRINT_CSS, 1)
+    else:
+        out = re.sub(r"</head>", PRINT_CSS + "\n</head>", out, count=1, flags=re.I)
+    if '<div class="app">' in out:
+        out = out.replace('<div class="app">', front + '\n<div class="app">', 1)
+    else:
+        out = re.sub(r"(<body[^>]*>)", lambda m: m.group(1) + front, out, count=1, flags=re.I)
+
+    if re.search(r"<html", out, re.I):
+        # a full document: force the light theme for print, leave the rest
+        out = re.sub(
+            r"<html(?![^>]*data-theme)", '<html data-theme="light"', out, count=1, flags=re.I
+        )
+        return out
+
+    # a fragment that starts at <title>/<style>: wrap it into a document
+    out = (
+        '<!doctype html>\n<html lang="en" data-theme="light">\n<head>\n'
+        '<meta charset="utf-8">\n' + out + "\n</body>\n</html>\n"
+    )
+    return out.replace("</style>\n" + PRINT_CSS, "</style>\n" + PRINT_CSS + "\n</head>\n<body>", 1)
+
+
+def render(html_path, pdf_path, chrome):
+    """Run the browser headless. Returns the stderr text when no PDF appears."""
+    proc = subprocess.run(
+        [
+            chrome, "--headless=new", "--disable-gpu", "--no-first-run", "--no-sandbox",
+            f"--print-to-pdf={pdf_path}", "--no-pdf-header-footer",
+            "--virtual-time-budget=10000", f"file:///{html_path.replace(os.sep, '/')}",
+        ],
+        capture_output=True, text=True, errors="replace", timeout=180,
+    )
+    if os.path.exists(pdf_path) and os.path.getsize(pdf_path) > 0:
+        return ""
+    tail = "\n".join(proc.stderr.strip().splitlines()[-5:])
+    return f"browser exited {proc.returncode}\n{tail}".strip()
+
+
+def main(argv=None):
     ap = argparse.ArgumentParser(
         description="Render the built webpage into a single print-ready PDF manual."
     )
@@ -136,51 +196,47 @@ def main():
                     help="site config JSON (default: %(default)s)")
     ap.add_argument("--label", default=None,
                     help='edition label for the title page (default: config "pdf_label")')
-    args = ap.parse_args()
+    ap.add_argument("--page", default=None,
+                    help="HTML file to render instead of the config's page, e.g. site/casual.html")
+    ap.add_argument("--pdf", default=None,
+                    help="output PDF path instead of the config's pdf")
+    ap.add_argument("--chrome", default=None,
+                    help="browser binary (default: known paths, PATH, or $TALI_CHROME)")
+    args = ap.parse_args(argv)
 
-    cfg = load_config(args.config)
-    if "page" not in cfg or "pdf" not in cfg:
-        raise SystemExit('config is missing required key: "page" or "pdf"')
+    try:
+        cfg = load_config(args.config)
+        page_path = os.path.join(cfg["_dir"], args.page or require(cfg, "page"))
+        pdf_path = os.path.join(cfg["_dir"], args.pdf or require(cfg, "pdf"))
+        if not os.path.isfile(page_path):
+            raise ConfigError(f"page not found: {page_path}")
+        chrome = find_chrome(args.chrome)
+    except ConfigError as e:
+        print(f"config error: {e}", file=sys.stderr)
+        return 2
 
-    page_path = os.path.join(cfg["_dir"], cfg["page"])
-    pdf_path = os.path.join(cfg["_dir"], cfg["pdf"])
     label = args.label if args.label is not None else cfg.get("pdf_label", "draft")
-
     page = open(page_path, encoding="utf-8").read()
-    front = title_block(cfg, label, build_toc(page))
-
-    # unhide every section, drop the SPA script, add print styling
-    out = page.replace('" hidden>', '">')
-    out = re.sub(r"<script>.*?</script>", "", out, flags=re.DOTALL)
-    out = out.replace("</style>", "</style>\n" + PRINT_CSS, 1)
-    out = out.replace('<div class="app">', front + '\n<div class="app">', 1)
-    out = (
-        '<!doctype html>\n<html lang="en" data-theme="light">\n<head>\n'
-        '<meta charset="utf-8">\n' + out + "\n</body>\n</html>\n"
-    )
-    out = out.replace("</style>\n" + PRINT_CSS, "</style>\n" + PRINT_CSS + "\n</head>\n<body>", 1)
+    out = print_html(page, cfg, label)
 
     stem = os.path.splitext(os.path.basename(pdf_path))[0]
     tmp = os.path.join(tempfile.gettempdir(), f"{stem}-print.html")
     open(tmp, "w", encoding="utf-8").write(out)
 
-    subprocess.run(
-        [
-            find_chrome(), "--headless=new", "--disable-gpu", "--no-first-run",
-            f"--print-to-pdf={pdf_path}", "--no-pdf-header-footer",
-            "--virtual-time-budget=10000", f"file:///{tmp.replace(os.sep, '/')}",
-        ],
-        capture_output=True, timeout=180,
-    )
-    if not os.path.exists(pdf_path):
-        raise SystemExit("PDF was not produced")
+    if os.path.exists(pdf_path):
+        os.remove(pdf_path)
+    failure = render(tmp, pdf_path, chrome)
+    if failure:
+        print(f"PDF was not produced: {failure}", file=sys.stderr)
+        return 1
     print(f"wrote {os.path.basename(pdf_path)}: {os.path.getsize(pdf_path):,} bytes")
 
     site_pdf = os.path.join(cfg["_dir"], cfg.get("site_dir", "site"),
                             os.path.basename(pdf_path))
-    if os.path.isdir(os.path.dirname(site_pdf)):
+    if os.path.isdir(os.path.dirname(site_pdf)) and os.path.abspath(site_pdf) != os.path.abspath(pdf_path):
         shutil.copy2(pdf_path, site_pdf)
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

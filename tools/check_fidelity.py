@@ -2,14 +2,24 @@
 """Check that every voice copy of a document set still carries its fidelity items.
 
 Reads a JSON fidelity config (default ./tali.fidelity.json, see
-tali.fidelity.example.json) naming a source directory, one directory per voice
-that mirrors it, and the document set's declared fidelity list. For every
-source document and every voice, the voice copy must contain:
+tali.fidelity.example.json) naming the source documents, one location per
+voice that mirrors them, and the document set's declared fidelity list. For
+every source document and every voice, the voice copy must contain:
 
 - every fenced code block in the source, verbatim;
 - every inline code span, URL, and number in the source prose;
 - every declared fidelity phrase (labels, fixed phrases, load-bearing
-  qualifiers, distinctions) that occurs in the source.
+  qualifiers, distinctions) that occurs in the source;
+- every mechanically checkable item of the document's fact skeleton when a
+  skeletons directory is configured: the Verbatim, Labels, Fixed phrases and
+  Qualifiers sections. Claims and Distinctions stay with the human verifier.
+
+Sources and voices live in the working tree or at a git ref. "sources_ref"
+reads the sources from a commit instead of the checkout; a voice given as
+{"ref": "voice-casual"} reads its copies from that branch at the same paths
+(the voice-review branch-per-voice pattern), and {"ref": ..., "dir": ...}
+from another directory of the repository. The config must sit inside the
+repository for refs to resolve.
 
 Matching collapses whitespace, so rewrapped lines still match, and ignores
 `*` emphasis outside code, so "*not* a sandbox" still carries "not a sandbox".
@@ -30,7 +40,9 @@ Exit status: 0 every check passed, 1 at least one fidelity break, 2 config error
 import argparse
 import json
 import os
+import posixpath
 import re
+import subprocess
 import sys
 
 DEFAULT_CONFIG = "tali.fidelity.json"
@@ -42,6 +54,18 @@ URL = re.compile(r"https?://[^\s<>)\]]+")
 NUMBER = re.compile(r"(?<![\w.-])\d+(?:[.,]\d+)*%?(?![\w-])")
 LIST_MARKER = re.compile(r"^\s*\d+[.)]\s+", re.M)
 HEADING_MARKER = re.compile(r"^#{1,6}\s+", re.M)
+
+SKELETON_HEADING = re.compile(r"^##\s+(.+?)\s*$")
+SKELETON_BULLET = re.compile(r"^\s*[-*]\s+(.*)$")
+SKELETON_ITEM = re.compile(r"^([A-Z]+\d+):\s*(.+?)\s*$")
+# Skeleton sections the script checks, and the item kind each one reports.
+# Claims and Distinctions are judgment calls and stay with the verifier.
+SKELETON_KINDS = {
+    "verbatim": "skeleton verbatim",
+    "labels": "skeleton label",
+    "fixed phrases": "skeleton fixed phrase",
+    "qualifiers": "skeleton qualifier",
+}
 
 
 class ConfigError(Exception):
@@ -57,6 +81,23 @@ def _strip_comments(node):
     return node
 
 
+def voice_spec(key, spec, sources_root):
+    """Normalize a voice entry to {"dir": ..., "ref": ... or None}."""
+    if isinstance(spec, str):
+        return {"dir": spec, "ref": None}
+    if isinstance(spec, dict):
+        unknown = sorted(set(spec) - {"ref", "dir"})
+        if unknown:
+            raise ConfigError(f"voice {key!r} has unknown key(s) {unknown}; allowed: ref, dir")
+        for k in ("ref", "dir"):
+            if k in spec and not isinstance(spec[k], str):
+                raise ConfigError(f"voice {key!r}: {k!r} must be a string")
+        if not spec.get("ref") and not spec.get("dir"):
+            raise ConfigError(f"voice {key!r} needs a 'ref', a 'dir', or both")
+        return {"dir": spec.get("dir") or sources_root, "ref": spec.get("ref") or None}
+    raise ConfigError(f"voice {key!r} must be a directory string or a {{ref, dir}} object")
+
+
 def load_config(path):
     if not os.path.exists(path):
         raise ConfigError(
@@ -64,7 +105,8 @@ def load_config(path):
             "(see tali.fidelity.example.json)"
         )
     try:
-        cfg = _strip_comments(json.load(open(path, encoding="utf-8")))
+        with open(path, encoding="utf-8") as f:
+            cfg = _strip_comments(json.load(f))
     except json.JSONDecodeError as e:
         raise ConfigError(f"config is not valid JSON: {e}")
     cfg["_dir"] = os.path.dirname(os.path.abspath(path))
@@ -72,7 +114,10 @@ def load_config(path):
         if key not in cfg:
             raise ConfigError(f"config is missing required key: {key!r}")
     if not isinstance(cfg["voices"], dict) or not cfg["voices"]:
-        raise ConfigError("'voices' must map each voice key to a directory")
+        raise ConfigError("'voices' must map each voice key to a directory or a {ref, dir} object")
+    cfg["voices"] = {k: voice_spec(k, v, cfg["sources_root"]) for k, v in cfg["voices"].items()}
+    if "sources_ref" in cfg and not isinstance(cfg["sources_ref"], str):
+        raise ConfigError("'sources_ref' must be a git ref string")
     return cfg
 
 
@@ -89,26 +134,128 @@ def squash(s):
     return " ".join(s.split())
 
 
-def list_documents(cfg):
+# --- document trees: a working-tree directory or a directory at a git ref ---
+
+def git(cfg, *args, ref=None):
+    """Run git at the repository top level; any failure is a config error."""
+    cwd = cfg.get("_toplevel", cfg["_dir"])
+    try:
+        proc = subprocess.run(
+            ["git", *args], cwd=cwd, capture_output=True,
+            text=True, encoding="utf-8", errors="replace",
+        )
+    except FileNotFoundError:
+        raise ConfigError("git is not on PATH; sources_ref and ref voices need it") from None
+    if proc.returncode != 0:
+        where = f" at ref {ref!r}" if ref else ""
+        raise ConfigError(f"git failed{where} ({' '.join(args)}): {proc.stderr.strip()}")
+    return proc.stdout
+
+
+def toplevel(cfg):
+    if "_toplevel" not in cfg:
+        cfg["_toplevel"] = os.path.realpath(git(cfg, "rev-parse", "--show-toplevel").strip())
+    return cfg["_toplevel"]
+
+
+def repo_relpath(cfg, rel):
+    """Config-relative path -> path relative to the repository top level, POSIX form."""
+    top = toplevel(cfg)
+    try:
+        inside = os.path.relpath(os.path.realpath(resolve(cfg, rel)), top)
+    except ValueError:  # another drive on Windows
+        inside = ".."
+    inside = inside.replace(os.sep, "/")
+    if inside == ".." or inside.startswith("../"):
+        raise ConfigError(f"{rel!r} is outside the git repository at {top}")
+    return inside
+
+
+class DirTree:
+    """Documents under a working-tree directory."""
+
+    ref = None
+
+    def __init__(self, root):
+        self.root = self.location = root
+
+    def list_md(self):
+        found = []
+        for dirpath, _, files in os.walk(self.root):
+            for name in files:
+                if name.lower().endswith(".md"):
+                    rel = os.path.relpath(os.path.join(dirpath, name), self.root)
+                    found.append(rel.replace(os.sep, "/"))
+        return sorted(found)
+
+    def has(self, doc):
+        return os.path.isfile(os.path.join(self.root, doc))
+
+    def read(self, doc):
+        return read(os.path.join(self.root, doc))
+
+
+class GitTree:
+    """Documents under one directory of the repository at a git ref."""
+
+    def __init__(self, cfg, ref, rel):
+        self.cfg, self.ref = cfg, ref
+        self.prefix = self.location = repo_relpath(cfg, rel)
+        self._names = None
+
+    def _listing(self):
+        if self._names is None:
+            args = ["ls-tree", "-r", "-z", "--name-only", self.ref]
+            if self.prefix != ".":
+                args += ["--", self.prefix]
+            out = git(self.cfg, *args, ref=self.ref)
+            base = "" if self.prefix == "." else self.prefix + "/"
+            self._names = {
+                p[len(base):] for p in out.split("\0") if p.startswith(base) and p != base
+            }
+        return self._names
+
+    def list_md(self):
+        return sorted(p for p in self._listing() if p.lower().endswith(".md"))
+
+    def has(self, doc):
+        return doc in self._listing()
+
+    def read(self, doc):
+        obj = posixpath.normpath(posixpath.join(self.prefix, doc))
+        return git(self.cfg, "show", f"{self.ref}:{obj}", ref=self.ref).replace("\r\n", "\n")
+
+
+def source_tree(cfg):
+    if cfg.get("sources_ref"):
+        return GitTree(cfg, cfg["sources_ref"], cfg["sources_root"])
     root = resolve(cfg, cfg["sources_root"])
     if not os.path.isdir(root):
         raise ConfigError(f"sources_root is not a directory: {root}")
+    return DirTree(root)
+
+
+def voice_tree(cfg, spec):
+    if spec["ref"]:
+        return GitTree(cfg, spec["ref"], spec["dir"])
+    return DirTree(resolve(cfg, spec["dir"]))
+
+
+def list_documents(cfg, tree):
+    at = f" at ref {tree.ref!r}" if tree.ref else ""
     docs = cfg.get("documents")
     if docs:
         for d in docs:
-            if not os.path.isfile(os.path.join(root, d)):
-                raise ConfigError(f"listed document not found in sources_root: {d}")
+            if not tree.has(d):
+                raise ConfigError(f"listed document not found in sources_root{at}: {d}")
         return list(docs)
-    found = []
-    for dirpath, _, files in os.walk(root):
-        for name in files:
-            if name.lower().endswith(".md"):
-                rel = os.path.relpath(os.path.join(dirpath, name), root)
-                found.append(rel.replace(os.sep, "/"))
+    found = tree.list_md()
     if not found:
-        raise ConfigError(f"no .md documents under sources_root: {root}")
-    return sorted(found)
+        raise ConfigError(f"no .md documents under sources_root{at}: {tree.location}")
+    return found
 
+
+# --- text matching ---
 
 def split_code(text):
     """Return (fenced blocks, inline spans, prose with all code removed)."""
@@ -128,7 +275,56 @@ def matchable(text):
     return squash(plain), [squash(f) for f in fences], spans
 
 
-def extract_items(source, cfg, declared):
+def contains(text, fences, spans, phrase):
+    """Whether a phrase occurs in the prose, a fenced block, or an inline span."""
+    return (
+        phrase in text
+        or any(phrase in f for f in fences)
+        or any(phrase in squash(s) for s in spans)
+    )
+
+
+# --- fact skeletons ---
+
+def skeleton_path(cfg, doc):
+    sdir = cfg.get("skeletons_dir")
+    if not sdir:
+        return None
+    stem = re.sub(r"\.md$", "", doc, flags=re.I)
+    path = os.path.join(resolve(cfg, sdir), stem + ".skeleton.md")
+    return path if os.path.isfile(path) else None
+
+
+def parse_skeleton(path):
+    """(kind, phrase) pairs from the mechanically checkable skeleton sections."""
+    items, kind = [], None
+    for line in read(path).split("\n"):
+        h = SKELETON_HEADING.match(line)
+        if h:
+            kind = SKELETON_KINDS.get(h.group(1).lower())
+            continue
+        if kind is None:
+            continue
+        b = SKELETON_BULLET.match(line)
+        if not b:
+            continue
+        m = SKELETON_ITEM.match(b.group(1))
+        if not m:
+            raise ConfigError(
+                f"skeleton bullet without an '<ID>: ' prefix in {path}: {line.strip()!r}"
+            )
+        text = m.group(2)
+        if len(text) >= 2 and text[0] == "`" and text[-1] == "`":
+            text = text[1:-1].strip()
+        if not text:
+            raise ConfigError(f"skeleton item {m.group(1)} in {path} has no text")
+        items.append((kind, squash(text)))
+    return items
+
+
+# --- the check ---
+
+def extract_items(source, cfg, declared, skeleton=()):
     """The fidelity items a voice copy of this source must carry, in order."""
     auto = {"code": True, "urls": True, "numbers": True, **cfg.get("auto", {})}
     fences, spans, prose = split_code(source)
@@ -143,10 +339,16 @@ def extract_items(source, cfg, declared):
         bare = LIST_MARKER.sub(" ", bare)
         bare = HEADING_MARKER.sub(" ", bare)
         items += [("number", n) for n in dict.fromkeys(NUMBER.findall(bare))]
-    text, _, _ = matchable(source)
-    for phrase in declared:
-        if squash(phrase) in text:
-            items.append(("fidelity phrase", squash(phrase)))
+    text, sq_fences, _ = matchable(source)
+    for phrase in dict.fromkeys(squash(p) for p in declared):
+        if contains(text, sq_fences, spans, phrase):
+            items.append(("fidelity phrase", phrase))
+    # A skeleton item that repeats something already required is one item.
+    seen = {item for _, item in items}
+    for kind, phrase in skeleton:
+        if phrase not in seen:
+            items.append((kind, phrase))
+            seen.add(phrase)
     return items
 
 
@@ -157,7 +359,7 @@ def present(kind, item, voice_text, voice_fences, voice_spans):
         return item in voice_spans or item in voice_text
     if kind == "number":
         return re.search(r"(?<![\w.-])" + re.escape(item) + r"(?![\w-])", voice_text) is not None
-    return item in voice_text
+    return contains(voice_text, voice_fences, voice_spans, item)
 
 
 def declared_for(cfg, doc):
@@ -175,37 +377,49 @@ def waived(cfg, voice, doc, item):
 
 
 def check(cfg, only_voice=None):
-    docs = list_documents(cfg)
-    src_root = resolve(cfg, cfg["sources_root"])
+    src = source_tree(cfg)
+    docs = list_documents(cfg, src)
     voices = cfg["voices"]
     if only_voice:
         if only_voice not in voices:
             raise ConfigError(f"unknown voice {only_voice!r}; config has: {', '.join(voices)}")
         voices = {only_voice: voices[only_voice]}
 
+    sources = {doc: src.read(doc) for doc in docs}
+    parsed = {doc: matchable(sources[doc]) for doc in docs}
+
     # A declared document phrase that the source itself lacks is a stale
     # fidelity list, not a voice failure; refuse to run on it.
     for doc, phrases in cfg.get("fidelity", {}).get("documents", {}).items():
         if doc not in docs:
             raise ConfigError(f"fidelity list names a document not in the set: {doc}")
-        text, _, _ = matchable(read(os.path.join(src_root, doc)))
+        text, fences, spans = parsed[doc]
         for p in phrases:
-            if squash(p) not in text:
+            if not contains(text, fences, spans, squash(p)):
                 raise ConfigError(f"fidelity phrase not found in source {doc}: {p!r}")
 
+    # Same for a fact skeleton: it was built from the source, so an item the
+    # source no longer carries means the skeleton drifted, not the voice.
+    skeletons = {}
+    for doc in docs:
+        path = skeleton_path(cfg, doc)
+        skeletons[doc] = parse_skeleton(path) if path else []
+        text, fences, spans = parsed[doc]
+        for _, phrase in skeletons[doc]:
+            if not contains(text, fences, spans, phrase):
+                raise ConfigError(f"skeleton phrase not found in source {doc}: {phrase!r}")
+
     results = []
-    for voice, vdir in voices.items():
-        vroot = resolve(cfg, vdir)
+    for voice, spec in voices.items():
+        tree = voice_tree(cfg, spec)
         for doc in docs:
-            source = read(os.path.join(src_root, doc))
             entry = {"voice": voice, "document": doc, "missing": [], "waived": [], "checked": 0}
-            vpath = os.path.join(vroot, doc)
-            if not os.path.isfile(vpath):
+            if not tree.has(doc):
                 entry["missing"].append({"kind": "document", "item": "voice copy does not exist"})
                 results.append(entry)
                 continue
-            vtext, vfences, vspans = matchable(read(vpath))
-            items = extract_items(source, cfg, declared_for(cfg, doc))
+            vtext, vfences, vspans = matchable(tree.read(doc))
+            items = extract_items(sources[doc], cfg, declared_for(cfg, doc), skeletons[doc])
             entry["checked"] = len(items)
             for kind, item in items:
                 if present(kind, item, vtext, vfences, vspans):

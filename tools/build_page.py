@@ -7,9 +7,18 @@ regenerates those sections in place, preserving the page shell (CSS, nav,
 pager, JS) and any sections that have no markdown source. Paths in the config
 are resolved relative to the config file's directory.
 
+Markdown supported: # title (becomes the section h1), ## to ###### headings
+(each gets an id of <section>--<slug> so links can target it), paragraphs,
+*emphasis*, **strong**, `code`, fenced code (an info string becomes a class),
+links, images, bullet and numbered lists with nesting and blank lines between
+items, checklists, tables, blockquotes, horizontal rules, status chips, and
+{.class} on its own line to tag the next table.
+
 Usage:
     python build_page.py [--config tali.site.json]   # rebuild in place
     python build_page.py --check                     # report what would change, write nothing
+
+Exit status: 0 ok, 2 config or source error.
 """
 
 import argparse
@@ -17,14 +26,25 @@ import html
 import json
 import os
 import re
+import sys
 
 DEFAULT_CONFIG = "tali.site.json"
 
-# Populated by configure(); module-level so build_site.py can reuse the
-# converter after loading the same config.
+# Populated by configure(); module-level so build_site.py and init_site.py can
+# reuse the converter after loading the same config.
 LINK_MAP = {}
 CHIP_CLASSES = []
 SKIP_PREFIXES = ()
+SECTION_IDS = set()
+
+# Set by convert() for the section being converted, so same-page anchors and
+# heading ids are scoped to it.
+CURRENT_SECTION = ""
+_SLUGS_SEEN = set()
+
+
+class ConfigError(Exception):
+    pass
 
 
 def _strip_comments(node):
@@ -38,31 +58,47 @@ def _strip_comments(node):
 
 def load_config(path):
     if not os.path.exists(path):
-        raise SystemExit(
+        raise ConfigError(
             f"config not found: {path} — pass --config PATH or create one "
             "(see tali.site.example.json)"
         )
-    cfg = _strip_comments(json.load(open(path, encoding="utf-8")))
+    try:
+        cfg = _strip_comments(json.load(open(path, encoding="utf-8")))
+    except json.JSONDecodeError as e:
+        raise ConfigError(f"config is not valid JSON: {e}")
     cfg["_dir"] = os.path.dirname(os.path.abspath(path))
     return cfg
 
 
 def require(cfg, key):
     if key not in cfg:
-        raise SystemExit(f"config is missing required key: {key!r}")
+        raise ConfigError(f"config is missing required key: {key!r}")
     return cfg[key]
 
 
 def configure(cfg):
     """Point the converter at this config's link map, chips, and skip list."""
-    global LINK_MAP, CHIP_CLASSES, SKIP_PREFIXES
+    global LINK_MAP, CHIP_CLASSES, SKIP_PREFIXES, SECTION_IDS
     LINK_MAP = cfg.get("link_map", {})
     CHIP_CLASSES = [(c["label"], c["class"]) for c in cfg.get("chips", [])]
     SKIP_PREFIXES = tuple(cfg.get("skip_prefixes", []))
+    SECTION_IDS = set(cfg.get("section_sources", {})) | {
+        v.lstrip("#") for v in LINK_MAP.values()
+    }
 
 
 def esc(s):
     return html.escape(s, quote=False)
+
+
+def slug(text):
+    text = re.sub(r"<[^>]+>", "", text)
+    text = re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
+    return text or "section"
+
+
+def anchor(section_id, fragment=""):
+    return f"#{section_id}--{fragment}" if fragment else f"#{section_id}"
 
 
 # inline HTML allowed to pass through the converter untouched
@@ -89,14 +125,27 @@ def inline(text):
     text = re.sub(r"`([^`]+)`", stash, text)
     text = RAW_HTML.sub(stash_raw, text)
     text = esc(text)
-    # links
+
+    # images before links, or the link pattern eats them and leaves the "!"
+    text = re.sub(
+        r"!\[([^\]]*)\]\(([^)\s]+)\)",
+        lambda m: f'<img src="{m.group(2)}" alt="{m.group(1)}">',
+        text,
+    )
+
     def linkrepl(m):
         label, target = m.group(1), m.group(2)
-        base = target.split("/")[-1].split("#")[0]
-        if target.startswith("#"):
-            href = target
+        path, _, frag = target.partition("#")
+        base = path.split("/")[-1]
+        if not path:
+            # "#frag": a section id passes through, anything else is a
+            # heading inside the section being converted
+            if frag in SECTION_IDS or not CURRENT_SECTION:
+                href = target
+            else:
+                href = anchor(CURRENT_SECTION, frag)
         elif base in LINK_MAP:
-            href = LINK_MAP[base]
+            href = anchor(LINK_MAP[base].lstrip("#"), frag)
         elif target.startswith("http"):
             href = target
         else:
@@ -130,9 +179,91 @@ def split_table_row(line):
     return [c.strip() for c in cells]
 
 
+BULLET = re.compile(r"^(\s*)[-*]\s+(.*)$")
+ORDERED = re.compile(r"^(\s*)\d+[.)]\s+(.*)$")
+CHECKBOX = re.compile(r"^\[[ xX]\]\s*")
+HRULE = re.compile(r"^(-{3,}|\*{3,}|_{3,})\s*$")
+HEADING = re.compile(r"^(#{2,6})\s+(.*)$")
+BLOCK_START = re.compile(r"^(#{2,6}\s|[-*]\s|\d+[.)]\s|\||>|```|\{\.)")
+
+
+def list_kind(line):
+    """(kind, indent, item text) when the line opens a list item, else None."""
+    m = BULLET.match(line)
+    if m:
+        return "ul", len(m.group(1).expandtabs(4)), m.group(2)
+    m = ORDERED.match(line)
+    if m:
+        return "ol", len(m.group(1).expandtabs(4)), m.group(2)
+    return None
+
+
+def parse_list(lines, i, kind, indent):
+    """Parse the list whose first item is lines[i]. Returns (html, next i).
+
+    Items at a deeper indent become a nested list inside the current item;
+    indented non-item lines continue the current item; blank lines end the
+    list unless the next non-blank line is another item of this same list.
+    """
+    items = []
+    is_check = False
+    while i < len(lines):
+        line = lines[i]
+        if not line.strip():
+            j = i
+            while j < len(lines) and not lines[j].strip():
+                j += 1
+            k = list_kind(lines[j]) if j < len(lines) else None
+            if k and k[0] == kind and k[1] == indent:
+                i = j
+                continue
+            break
+        k = list_kind(line)
+        if k and k[1] == indent:
+            if k[0] != kind:
+                break
+            text = k[2]
+            if CHECKBOX.match(text):
+                is_check = is_check or not items
+                text = CHECKBOX.sub("", text)
+            items.append([text, ""])
+            i += 1
+            continue
+        if k and k[1] > indent and items:
+            sub, i = parse_list(lines, i, k[0], k[1])
+            items[-1][1] += "\n" + sub
+            continue
+        if items and line.startswith((" ", "\t")) and not k:
+            items[-1][0] += " " + line.strip()
+            i += 1
+            continue
+        break
+    cls = ' class="check"' if is_check else ""
+    out = [f"<{kind}{cls}>"]
+    out += [f"    <li>{inline(t)}{c}</li>" for t, c in items]
+    out.append(f"  </{kind}>")
+    return "\n".join(out), i
+
+
+def heading(level, text):
+    global _SLUGS_SEEN
+    base = slug(text)
+    s, n = base, 1
+    while s in _SLUGS_SEEN:
+        n += 1
+        s = f"{base}-{n}"
+    _SLUGS_SEEN.add(s)
+    hid = f' id="{CURRENT_SECTION}--{s}"' if CURRENT_SECTION else ""
+    return f"<h{level}{hid}>{inline(text)}</h{level}>"
+
+
 def convert(md, section_id):
     """Markdown body -> HTML fragment (h1 handled by caller)."""
-    lines = md.split("\n")
+    global CURRENT_SECTION, _SLUGS_SEEN
+    CURRENT_SECTION = section_id
+    _SLUGS_SEEN = set()
+
+    lines = md.replace("\r\n", "\n").split("\n")
     out = []
     i = 0
     # drop title + frontmatter lines
@@ -180,11 +311,14 @@ def convert(md, section_id):
             out.append(f"<pre{cls}>" + esc("\n".join(buf)) + "</pre>")
             continue
 
-        # headings
-        m = re.match(r"^(#{2,4})\s+(.*)$", s)
+        if HRULE.match(s):
+            out.append("<hr>")
+            i += 1
+            continue
+
+        m = HEADING.match(s)
         if m:
-            lvl = len(m.group(1))
-            out.append(f"<h{lvl}>{inline(m.group(2))}</h{lvl}>")
+            out.append(heading(len(m.group(1)), m.group(2)))
             i += 1
             continue
 
@@ -224,60 +358,22 @@ def convert(md, section_id):
             out.append("\n    ".join(t))
             continue
 
-        # checklist / unordered list
-        if re.match(r"^[-*]\s+", s):
-            is_check = bool(re.match(r"^[-*]\s+\[[ xX]\]", s))
-            items = []
-            while i < len(lines) and re.match(r"^[-*]\s+", lines[i].strip()):
-                item = re.sub(r"^[-*]\s+", "", lines[i].strip())
-                item = re.sub(r"^\[[ xX]\]\s*", "", item)
-                i += 1
-                # continuation lines
-                while (
-                    i < len(lines)
-                    and lines[i].startswith(("  ", "\t"))
-                    and lines[i].strip()
-                    and not re.match(r"^[-*]\s+", lines[i].strip())
-                ):
-                    item += " " + lines[i].strip()
-                    i += 1
-                items.append(item)
-            cls = ' class="check"' if is_check else ""
-            out.append(
-                f"<ul{cls}>\n    "
-                + "\n    ".join(f"<li>{inline(x)}</li>" for x in items)
-                + "\n  </ul>"
-            )
-            continue
-
-        # ordered list
-        if re.match(r"^\d+\.\s+", s):
-            items = []
-            while i < len(lines) and re.match(r"^\d+\.\s+", lines[i].strip()):
-                item = re.sub(r"^\d+\.\s+", "", lines[i].strip())
-                i += 1
-                while (
-                    i < len(lines)
-                    and lines[i].startswith(("  ", "\t"))
-                    and lines[i].strip()
-                    and not re.match(r"^\d+\.\s+", lines[i].strip())
-                ):
-                    item += " " + lines[i].strip()
-                    i += 1
-                items.append(item)
-            out.append(
-                "<ol>\n    "
-                + "\n    ".join(f"<li>{inline(x)}</li>" for x in items)
-                + "\n  </ol>"
-            )
+        # bullet, checklist, or numbered list (nested by indentation)
+        k = list_kind(line)
+        if k:
+            block, i = parse_list(lines, i, k[0], k[1])
+            out.append(block)
             continue
 
         # paragraph
         buf = []
-        while i < len(lines) and lines[i].strip() and not re.match(
-            r"^(#{2,4}\s|[-*]\s|\d+\.\s|\||>|```)", lines[i].strip()
-        ):
+        while i < len(lines) and lines[i].strip() and not BLOCK_START.match(
+            lines[i].strip()
+        ) and not HRULE.match(lines[i].strip()):
             buf.append(lines[i].strip())
+            i += 1
+        if not buf:  # a line the block rules claim but could not parse
+            buf.append(s)
             i += 1
         para = inline(" ".join(buf))
         out.append(f"<p>{chipify(para)}</p>")
@@ -285,40 +381,40 @@ def convert(md, section_id):
     return "\n  ".join(out)
 
 
-def main():
-    ap = argparse.ArgumentParser(
-        description="Rebuild the generated HTML sections of a page from its markdown sources."
-    )
-    ap.add_argument("--config", default=DEFAULT_CONFIG,
-                    help="site config JSON (default: %(default)s)")
-    ap.add_argument("--check", action="store_true",
-                    help="report what would change, write nothing")
-    args = ap.parse_args()
+def rebuild(page, cfg, sources_root=None):
+    """Regenerate the mapped sections of a page from markdown.
 
-    cfg = load_config(args.config)
-    configure(cfg)
-
-    page_path = os.path.join(cfg["_dir"], require(cfg, "page"))
-    sources_root = os.path.abspath(
-        os.path.join(cfg["_dir"], cfg.get("sources_root", "."))
+    Returns (new page text, ids regenerated, ids changed, ids preserved).
+    `sources_root` overrides the config's, so one shell can be filled from
+    several voice directories.
+    """
+    root = os.path.abspath(
+        os.path.join(cfg["_dir"], sources_root or cfg.get("sources_root", "."))
     )
     section_sources = require(cfg, "section_sources")
+    page = page.replace("\r\n", "\n")  # a CRLF checkout must not read as "changed"
 
-    page = open(page_path, encoding="utf-8").read()
+    missing = [
+        f"{sid} ({rel})"
+        for sid, rel in section_sources.items()
+        if not os.path.isfile(os.path.join(root, rel))
+    ]
+    if missing:
+        raise ConfigError(
+            f"markdown source not found under {root}: " + ", ".join(missing)
+        )
 
     head_end = page.find('<section class="doc"')
+    if head_end == -1:
+        raise ConfigError('page has no <section class="doc" id="doc-..."> blocks')
     tail_start = page.rfind("</section>") + len("</section>")
-    head, sections_blob, tail = (
-        page[:head_end],
-        page[head_end:tail_start],
-        page[tail_start:],
-    )
+    head, sections_blob, tail = page[:head_end], page[head_end:tail_start], page[tail_start:]
 
     # split existing sections, keep their crumbs and any we don't regenerate
     parts = re.split(r'(?=<section class="doc" id="doc-)', sections_blob)
     parts = [p for p in parts if p.strip()]
 
-    rebuilt, changed, kept = [], [], []
+    rebuilt, regenerated, changed, kept = [], [], [], []
     for part in parts:
         m = re.match(r'<section class="doc" id="doc-([^"]+)"', part)
         sid = m.group(1)
@@ -330,8 +426,7 @@ def main():
         crumb_m = re.search(r"(<p class=\"crumb\">.*?</p>)", part, re.S)
         crumb = crumb_m.group(1) if crumb_m else ""
 
-        md_path = os.path.join(sources_root, section_sources[sid])
-        md = open(md_path, encoding="utf-8").read()
+        md = open(os.path.join(root, section_sources[sid]), encoding="utf-8").read()
         title_m = re.search(r"^#\s+(.*)$", md, re.M)
         title = inline(title_m.group(1)) if title_m else sid
         body = convert(md, sid)
@@ -343,21 +438,56 @@ def main():
             f"  {body}\n"
             f"</section>\n\n"
         )
+        regenerated.append(sid)
         if new_part.strip() != part.strip():
             changed.append(sid)
         rebuilt.append(new_part)
 
-    result = head + "".join(rebuilt) + tail
+    unmatched = [sid for sid in section_sources if sid not in regenerated]
+    if unmatched:
+        raise ConfigError(
+            "section_sources lists ids with no <section id=\"doc-...\"> in the page: "
+            + ", ".join(unmatched)
+        )
+    # one blank line between the last section and the tail, however many
+    # rebuilds have run, so a second build is byte-identical to the first
+    body = "".join(rebuilt).rstrip("\n") + "\n\n" + tail.lstrip("\n")
+    return head + body, regenerated, changed, kept
 
-    print(f"regenerated from markdown: {len(changed)}")
-    print(f"preserved as-is: {len(kept)} -> {', '.join(kept)}")
+
+def main(argv=None):
+    ap = argparse.ArgumentParser(
+        description="Rebuild the generated HTML sections of a page from its markdown sources."
+    )
+    ap.add_argument("--config", default=DEFAULT_CONFIG,
+                    help="site config JSON (default: %(default)s)")
+    ap.add_argument("--check", action="store_true",
+                    help="report what would change, write nothing")
+    args = ap.parse_args(argv)
+
+    try:
+        cfg = load_config(args.config)
+        configure(cfg)
+        page_path = os.path.join(cfg["_dir"], require(cfg, "page"))
+        if not os.path.isfile(page_path):
+            raise ConfigError(f"page not found: {page_path} (init_site.py creates one)")
+        page = open(page_path, encoding="utf-8").read()
+        result, regenerated, changed, kept = rebuild(page, cfg)
+    except ConfigError as e:
+        print(f"config error: {e}", file=sys.stderr)
+        return 2
+
+    print(f"regenerated from markdown: {len(regenerated)} (changed: {len(changed)})")
+    print(f"preserved as-is: {len(kept)} -> {', '.join(kept) or '-'}")
     if args.check:
         print(f"(check mode, nothing written) size {len(page)} -> {len(result)}")
-        return
+        return 0
 
-    open(page_path, "w", encoding="utf-8").write(result)
+    with open(page_path, "w", encoding="utf-8", newline="\n") as f:
+        f.write(result)
     print(f"wrote {page_path}: {len(page)} -> {len(result)} chars")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

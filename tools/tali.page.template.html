@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{TITLE}}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  /* ---- tokens: the build tools' injected CSS reads these names ---------- */
+  :root {
+    --bg: #F6F7F9;
+    --surface: #FFFFFF;
+    --ink: #1B2530;
+    --muted: #5A6878;
+    --line: #DCE1E7;
+    --accent: #1F5C8F;
+    --accent-ink: #163F63;
+    --accent-wash: #E8F0F8;
+    --ok: #1E7F4F;     --ok-wash: #E3F3EA;
+    --cond: #9A6300;   --cond-wash: #FBF1DC;
+    --case: #5A4FA2;   --case-wash: #ECEAF8;
+    --no: #B3261E;     --no-wash: #FBE5E3;
+    --code-bg: #EEF1F4;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0E1620; --surface: #151F2B; --ink: #E6EBF0; --muted: #98A6B5;
+      --line: #27343F; --accent: #7FB3E6; --accent-ink: #BBD6F0; --accent-wash: #1A2A3B;
+      --ok: #6FD19B; --ok-wash: #16301F; --cond: #F0C063; --cond-wash: #33280F;
+      --case: #B4AAF0; --case-wash: #242040; --no: #F08C85; --no-wash: #3B1A18;
+      --code-bg: #1C2733;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0E1620; --surface: #151F2B; --ink: #E6EBF0; --muted: #98A6B5;
+    --line: #27343F; --accent: #7FB3E6; --accent-ink: #BBD6F0; --accent-wash: #1A2A3B;
+    --ok: #6FD19B; --ok-wash: #16301F; --cond: #F0C063; --cond-wash: #33280F;
+    --case: #B4AAF0; --case-wash: #242040; --no: #F08C85; --no-wash: #3B1A18;
+    --code-bg: #1C2733;
+  }
+
+  /* ---- shell ------------------------------------------------------------ */
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: 'Public Sans', system-ui, -apple-system, sans-serif;
+    font-size: 16px; line-height: 1.6;
+  }
+  .brand {
+    font-weight: 700; font-size: 1.05rem; letter-spacing: .01em;
+    padding: 14px 16px 2px; background: var(--surface);
+  }
+  .sub {
+    color: var(--muted); font-size: .85rem; padding: 0 16px 12px;
+    background: var(--surface); border-bottom: 1px solid var(--line);
+  }
+  .app { display: flex; align-items: flex-start; }
+  nav.side {
+    flex: 0 0 15rem; position: sticky; top: 0; max-height: 100vh; overflow-y: auto;
+    padding: 1rem .75rem 2rem; border-right: 1px solid var(--line); background: var(--surface);
+  }
+  .grp-label {
+    font-family: 'IBM Plex Mono', monospace; font-size: .68rem; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--muted); margin: 1rem .5rem .35rem;
+  }
+  .grp-label:first-child { margin-top: .25rem; }
+  .navlink {
+    display: block; padding: .38rem .6rem; border-radius: 6px; color: var(--ink);
+    text-decoration: none; font-size: .9rem; line-height: 1.35;
+  }
+  .navlink:hover { background: var(--accent-wash); color: var(--accent-ink); }
+  .navlink.active { background: var(--accent); color: #FFFFFF; font-weight: 600; }
+  :root[data-theme="dark"] .navlink.active { color: #0E1620; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .navlink.active { color: #0E1620; }
+  }
+  main { flex: 1 1 auto; min-width: 0; }
+  section.doc { max-width: 46rem; margin: 0 auto; padding: 2rem 1.5rem 3rem; }
+  .crumb {
+    font-family: 'IBM Plex Mono', monospace; font-size: .72rem; letter-spacing: .06em;
+    color: var(--muted); margin: 0 0 .5rem;
+  }
+
+  /* ---- prose ------------------------------------------------------------ */
+  h1 { font-size: 1.9rem; line-height: 1.2; margin: 0 0 1rem; letter-spacing: -.01em; }
+  h2 { font-size: 1.3rem; line-height: 1.3; margin: 2rem 0 .6rem; }
+  h3 { font-size: 1.08rem; margin: 1.5rem 0 .4rem; }
+  h4, h5, h6 { font-size: .95rem; margin: 1.2rem 0 .3rem; color: var(--accent-ink); }
+  p { margin: 0 0 .9rem; }
+  a { color: var(--accent); }
+  hr { border: 0; border-top: 1px solid var(--line); margin: 1.6rem 0; }
+  ul, ol { padding-left: 1.4rem; margin: 0 0 .9rem; }
+  li { margin: .2rem 0; }
+  li ul, li ol { margin: .2rem 0 .3rem; }
+  ul.check { list-style: none; padding-left: .2rem; }
+  ul.check li::before { content: "\2610\00a0\00a0"; color: var(--muted); }
+  blockquote {
+    margin: 1rem 0; padding: .5rem 1rem; border-left: 3px solid var(--accent);
+    background: var(--accent-wash); color: var(--ink); border-radius: 0 6px 6px 0;
+  }
+  blockquote p { margin: 0; }
+  code, pre {
+    font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: .86em;
+  }
+  code { background: var(--code-bg); padding: .1em .35em; border-radius: 4px; }
+  pre {
+    background: var(--code-bg); padding: .8rem 1rem; border-radius: 8px;
+    overflow-x: auto; line-height: 1.5; margin: 0 0 1rem;
+  }
+  pre code { background: none; padding: 0; }
+  img { max-width: 100%; height: auto; border-radius: 6px; }
+  .tablewrap { overflow-x: auto; margin: 0 0 1.1rem; }
+  table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+  th, td { text-align: left; vertical-align: top; padding: .5rem .7rem; border-bottom: 1px solid var(--line); }
+  th { font-weight: 600; background: var(--accent-wash); color: var(--accent-ink); }
+
+  /* ---- status chips: **Label** at the start of a paragraph --------------- */
+  .chip {
+    display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em;
+    text-transform: uppercase; padding: .15em .55em; border-radius: 999px; margin-right: .4em;
+    vertical-align: middle;
+  }
+  .chip.ok   { color: var(--ok);   background: var(--ok-wash); }
+  .chip.cond { color: var(--cond); background: var(--cond-wash); }
+  .chip.case { color: var(--case); background: var(--case-wash); }
+  .chip.no   { color: var(--no);   background: var(--no-wash); }
+
+  /* ---- pager ------------------------------------------------------------ */
+  .pager {
+    display: flex; justify-content: space-between; gap: 1rem; max-width: 46rem;
+    margin: 0 auto; padding: 0 1.5rem 3rem; font-size: .9rem;
+  }
+  .pager a { text-decoration: none; }
+
+  /* ---- narrow screens --------------------------------------------------- */
+  @media (max-width: 800px) {
+    .app { display: block; }
+    nav.side {
+      position: static; max-height: none; display: flex; overflow-x: auto; gap: .25rem;
+      padding: .5rem 16px; border-right: 0; border-bottom: 1px solid var(--line);
+      white-space: nowrap;
+    }
+    .grp-label { margin: 0 .5rem 0 .25rem; align-self: center; }
+    section.doc { padding: 1.25rem 16px 2rem; }
+    .pager { padding: 0 16px 2rem; }
+  }
+</style>
+</head>
+<body>
+<div class="brand">{{TITLE}}</div>
+<div class="sub">{{SUBTITLE}}</div>
+<div class="app">
+<nav class="side">
+{{NAV}}
+</nav>
+<main>
+{{SECTIONS}}
+<div class="pager" id="pager"></div>
+</main>
+</div>
+<script>
+(function () {
+  var docs = Array.prototype.slice.call(document.querySelectorAll("section.doc"));
+  var links = Array.prototype.slice.call(document.querySelectorAll(".navlink"));
+  var ids = docs.map(function (d) { return d.id.slice(4); });
+  var pager = document.getElementById("pager");
+  var baseTitle = document.title;
+  function title(sid) {
+    var h = document.querySelector("#doc-" + sid + " h1");
+    return h ? h.textContent : sid;
+  }
+  function show() {
+    // "#sid" opens a section; "#sid--slug" opens it and scrolls to a heading
+    var hash = (location.hash || "").slice(1);
+    var sid = hash.split("--")[0];
+    if (ids.indexOf(sid) < 0) { sid = ids[0]; hash = sid; }
+    docs.forEach(function (d) { d.hidden = d.id !== "doc-" + sid; });
+    links.forEach(function (a) {
+      a.classList.toggle("active", a.getAttribute("href") === "#" + sid);
+    });
+    var n = ids.indexOf(sid);
+    if (pager) {
+      pager.innerHTML =
+        (n > 0 ? '<a class="prev" href="#' + ids[n - 1] + '">← ' + title(ids[n - 1]) + "</a>" : "<span></span>") +
+        (n < ids.length - 1 ? '<a class="next" href="#' + ids[n + 1] + '">' + title(ids[n + 1]) + " →</a>" : "<span></span>");
+    }
+    var target = hash !== sid ? document.getElementById(hash) : null;
+    if (target) { target.scrollIntoView(); } else { window.scrollTo(0, 0); }
+    document.title = title(sid) + " · " + baseTitle;
+  }
+  window.addEventListener("hashchange", show);
+  if (docs.length) { show(); }
+})();
+</script>
+</body>
+</html>

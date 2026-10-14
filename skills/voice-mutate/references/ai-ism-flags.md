@@ -2,6 +2,8 @@
 
 Purpose: the machine-tell patterns to strip during a voice pass, with the test for the one tell that sometimes has to stay.
 
+`tools/check_tells.py` runs the mechanical half of this list: the strip-on-sight vocabulary, hedging stacks, and em-dash density fail the lint; negation-contrasts, rhetorical questions, and symmetrical endings are reported for a human to judge. This file is the source of truth for the vocabulary; when it changes, the script's list is updated to match.
+
 ## Strip on sight
 
 - "It's worth noting," "importantly," "crucially," "essentially," "robust," "leverage," "seamless," "holistic," "comprehensive."

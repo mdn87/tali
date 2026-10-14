@@ -12,7 +12,7 @@ Before touching the prose, extract every load-bearing element of the source into
 - Every qualifier that limits scope or conditions a claim ("when the sync service is running," "not independently tested").
 - Every distinction between similar things the source keeps sharp (CLI vs desktop app, read vs write, hosted vs local).
 
-The skeleton is the contract. It's built from the source, once, before any rewriting — never reverse-engineered from the rewrite.
+The skeleton is the contract. It's built from the source, once, before any rewriting — never reverse-engineered from the rewrite. Write it to disk as `skeletons/<path>.skeleton.md` in the format in `fact-skeleton-template.md`, so it can be committed, diffed between rounds, handed to a verifier, and read by the checker.
 
 ## 2. Per-file pipeline
 
@@ -21,7 +21,7 @@ Run each file through, in order:
 1. **Fact skeleton** — extract as above.
 2. **Compression + voice rewrite** — apply the voice profile (and persona deltas, if any). Compress freely; this is where sentences get shorter and structure gets flattened.
 3. **Self-check against the skeleton** — the rewriter walks the skeleton item by item and points to where each item survives in the rewrite. Any item without a location is a break.
-4. **Independent cross-verification** — a second pass or a separate agent, given the skeleton and the rewrite (not the rewriter's reasoning), repeats the walk. Fresh eyes catch drift the rewriter rationalized.
+4. **Independent cross-verification** — a second pass or a separate agent, given the skeleton file and the rewrite (not the rewriter's reasoning), repeats the walk. Fresh eyes catch drift the rewriter rationalized.
 
 ## 3. Cross-verification checklist
 
@@ -35,12 +35,18 @@ The second pass checks specifically for:
 
 ## 4. The rerunnable check
 
-The verbatim half of this procedure is mechanical, so it runs as a script instead of a judgment call: `tools/check_fidelity.py`, driven by a `tali.fidelity.json` beside the document set (see `tools/tali.fidelity.example.json`). For every source document and every voice it requires each fenced code block, inline code span, URL, and number from the source, plus every phrase on the fidelity list the source contains, and prints PASS or FAIL per voice copy. Exit status 0 means every copy passed, 1 means at least one break, 2 means the config is wrong (including a fidelity phrase the source no longer contains).
+The verbatim half of this procedure is mechanical, so it runs as a script instead of a judgment call: `tools/check_fidelity.py`, driven by a `tali.fidelity.json` beside the document set (`tools/tali.fidelity.example.json` documents every key; `tools/init_site.py` creates a starter). For every source document and every voice it requires:
 
-Put labels, taxonomy members, fixed phrases, load-bearing qualifiers, and the wording that keeps a distinction sharp on the fidelity list as verbatim phrases; that is what makes them checkable. A pass is required before a voice pass is declared complete, and it is rerun after every fix and every redline.
+- each fenced code block, inline code span, URL, and number from the source;
+- every phrase declared in `tali.fidelity.json` (`fidelity.all` for the set, `fidelity.documents` per file) that the source contains;
+- every item under Verbatim, Labels, Fixed phrases, and Qualifiers in the document's skeleton file (`skeletons_dir`).
 
-What the script cannot judge is meaning drift in paraphrased prose: permission-vs-effectiveness drift, a qualifier still present but moved off its claim, a closed list reopened with "such as." Those stay with the cross-verification in section 3. A clean script run is necessary, not sufficient.
+It prints PASS or FAIL per voice copy. Exit status 0 means every copy passed, 1 means at least one break, 2 means the config is wrong, including a declared or skeleton phrase the source no longer contains. Voices are directories mirroring the sources, or git refs (`{"ref": "voice-casual"}`) with the sources pinned by `sources_ref`, so a set that keeps voices on branches is checked straight from git. Matching collapses whitespace and ignores `*` emphasis, and is otherwise verbatim and case-sensitive, because labels are; declare a qualifier without its sentence-initial article so a copy that starts a sentence with it still matches.
+
+Put labels, taxonomy members, fixed phrases, load-bearing qualifiers, and the wording that keeps a distinction sharp into the skeletons and the declared lists as verbatim phrases; that is what makes them checkable. A pass is required before a voice pass is declared complete, and it is rerun after every fix and every redline.
+
+What the script cannot judge is meaning drift in paraphrased prose: permission-vs-effectiveness drift, a qualifier still present but moved off its claim, a closed list reopened with "such as," a distinction whose members are each present but no longer distinguishable. Those stay with the cross-verification in section 3. A clean script run is necessary, not sufficient.
 
 ## 5. Failure handling
 
-A fidelity break is fixed in the rewrite, never patched by weakening the skeleton. If the rewrite can't carry an item gracefully, the prose bends — restore the qualifier, re-close the list, re-split the blurred distinction — and the voice pass re-runs on that passage. The same goes for the script: a break is fixed in the voice copy or recorded as a waiver with a reason, never cleared by deleting the phrase from the fidelity list. Editing the skeleton to make the check pass defeats the entire procedure; the skeleton only changes if it misread the source, and that's verified against the source, not against the rewrite.
+A fidelity break is fixed in the rewrite, never patched by weakening the skeleton. If the rewrite can't carry an item gracefully, the prose bends — restore the qualifier, re-close the list, re-split the blurred distinction — and the voice pass re-runs on that passage. The same goes for the script: a break is fixed in the voice copy or recorded as a waiver with a reason in `tali.fidelity.json`, never cleared by deleting the phrase from the skeleton or the fidelity list. Editing the skeleton to make the check pass defeats the entire procedure; the skeleton only changes if it misread the source, and that's verified against the source, not against the rewrite.

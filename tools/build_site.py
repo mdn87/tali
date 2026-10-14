@@ -2,14 +2,23 @@
 """Assemble the deployable site: every prose version plus the version switcher.
 
 For each entry in the config's "versions" list this writes one HTML file into
-the site directory: the local page when "ref" is null, otherwise the page as
-it exists at that git ref (commit or branch), so comparisons survive merges.
+the site directory. Where the version's prose comes from depends on the entry:
+
+  "ref": null            the local page as it is on disk (run build_page first)
+  "ref": "<commit|branch>"   the page as it exists at that git ref, so
+                         comparisons survive merges
+  "sources_root": "<dir>"    the local page shell refilled from that markdown
+                         directory, for voices kept as directories rather
+                         than branches
+
 Each copy gets a switcher bar, an optional per-version cover swap, wide-table
 marking, noindex/no-referrer meta, and a UTF-8 charset tag. Static assets
-listed in the config are copied alongside. Run build_page.py first so the
-local version reflects the current markdown.
+listed in the config are copied alongside.
 
 Usage:  python build_site.py [--config tali.site.json]
+
+Exit status: 0 ok (a version whose ref yields nothing is skipped with a
+warning), 2 config error.
 """
 
 import argparse
@@ -22,6 +31,7 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import build_page  # noqa: E402  (markdown -> HTML converter + config loader)
+from build_page import ConfigError  # noqa: E402
 
 SWITCH_CSS = """
   /* version switcher */
@@ -220,14 +230,18 @@ def prepare(html_text, cfg, version):
 
     m = re.search(r'(<div class="brand">.*?</div>\s*\n)', html_text, re.S)
     if not m:
-        raise SystemExit(f"{key}: could not find brand block")
+        raise ConfigError(f'{key}: page has no <div class="brand">...</div> block')
     html_text = html_text[: m.end()] + switcher(cfg["versions"], key) + html_text[m.end():]
 
     if 'name="robots"' not in html_text:
         html_text = html_text.replace("</title>", "</title>\n" + NOINDEX, 1)
 
     if "charset" not in html_text[:1024].lower():
-        html_text = CHARSET + "\n" + html_text
+        head = re.search(r"<head[^>]*>", html_text, re.I)
+        if head:
+            html_text = html_text[: head.end()] + "\n" + CHARSET + html_text[head.end():]
+        else:
+            html_text = CHARSET + "\n" + html_text
 
     if suffix:
         html_text = re.sub(
@@ -236,52 +250,91 @@ def prepare(html_text, cfg, version):
             html_text, count=1,
         )
 
+    body_end = html_text.lower().rfind("</body>")
+    if body_end != -1:
+        return html_text[:body_end] + SWITCH_JS.strip() + "\n" + html_text[body_end:]
     return html_text.rstrip() + "\n" + SWITCH_JS
 
 
-def source_for(cfg, ref):
-    if ref is None:
-        page_path = os.path.join(cfg["_dir"], build_page.require(cfg, "page"))
-        return open(page_path, encoding="utf-8").read()
-    repo_rel = build_page.require(cfg, "page_repo_path")
-    out = subprocess.run(
-        ["git", "show", f"{ref}:{repo_rel}"],
-        cwd=cfg["_dir"], capture_output=True, text=True, encoding="utf-8",
-    ).stdout
-    return out
+def local_page(cfg):
+    page_path = os.path.join(cfg["_dir"], build_page.require(cfg, "page"))
+    if not os.path.isfile(page_path):
+        raise ConfigError(f"page not found: {page_path} (init_site.py creates one)")
+    return open(page_path, encoding="utf-8").read()
 
 
-def main():
-    ap = argparse.ArgumentParser(
-        description="Assemble the deployable multi-version site with a version switcher."
-    )
-    ap.add_argument("--config", default=build_page.DEFAULT_CONFIG,
-                    help="site config JSON (default: %(default)s)")
-    args = ap.parse_args()
+def source_for(cfg, version):
+    """The page HTML for one version, or "" with a printed reason."""
+    ref = version.get("ref")
+    if ref:
+        repo_rel = build_page.require(cfg, "page_repo_path")
+        try:
+            proc = subprocess.run(
+                ["git", "show", f"{ref}:{repo_rel}"],
+                cwd=cfg["_dir"], capture_output=True, text=True, encoding="utf-8",
+            )
+        except FileNotFoundError:
+            raise ConfigError("git is not on PATH, and this version reads from a git ref")
+        if proc.returncode != 0:
+            why = proc.stderr.strip().splitlines()[-1] if proc.stderr.strip() else "git show failed"
+            print(f"  ! skipping {version['file']}: {ref}:{repo_rel}: {why}")
+            return ""
+        return proc.stdout
+    if version.get("sources_root"):
+        root = os.path.join(cfg["_dir"], version["sources_root"])
+        if not os.path.isdir(root):
+            print(f"  ! skipping {version['file']}: no voice copies yet at {version['sources_root']}")
+            return ""
+        return build_page.rebuild(local_page(cfg), cfg, version["sources_root"])[0]
+    return local_page(cfg)
 
-    cfg = build_page.load_config(args.config)
+
+def build(cfg):
+    """Write every version and the static assets. Returns the file list."""
     build_page.configure(cfg)
-
     site = os.path.join(cfg["_dir"], cfg.get("site_dir", "site"))
     os.makedirs(site, exist_ok=True)
 
+    written = []
     for version in build_page.require(cfg, "versions"):
-        src = source_for(cfg, version.get("ref"))
+        for key in ("key", "file", "url", "label"):
+            if key not in version:
+                raise ConfigError(f"a versions entry is missing {key!r}")
+        src = source_for(cfg, version)
         if not src.strip():
-            print(f"  ! skipping {version['file']}: no content at ref {version.get('ref')}")
             continue
-        open(os.path.join(site, version["file"]), "w", encoding="utf-8").write(
-            prepare(src, cfg, version)
-        )
+        path = os.path.join(site, version["file"])
+        with open(path, "w", encoding="utf-8", newline="\n") as f:
+            f.write(prepare(src, cfg, version))
+        written.append(path)
 
     for extra in cfg.get("static_assets", []):
         s = os.path.join(cfg["_dir"], extra)
         if os.path.exists(s):
             shutil.copy2(s, os.path.join(site, os.path.basename(extra)))
+            written.append(os.path.join(site, os.path.basename(extra)))
+    return site, written
+
+
+def main(argv=None):
+    ap = argparse.ArgumentParser(
+        description="Assemble the deployable multi-version site with a version switcher."
+    )
+    ap.add_argument("--config", default=build_page.DEFAULT_CONFIG,
+                    help="site config JSON (default: %(default)s)")
+    args = ap.parse_args(argv)
+
+    try:
+        cfg = build_page.load_config(args.config)
+        site, _ = build(cfg)
+    except ConfigError as e:
+        print(f"config error: {e}", file=sys.stderr)
+        return 2
 
     for f in sorted(os.listdir(site)):
         print(f"  {f:36} {os.path.getsize(os.path.join(site, f)):>9,} bytes")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

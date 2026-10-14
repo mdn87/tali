@@ -1,0 +1,70 @@
+{
+  "page": "handbook.html",
+  "sources_root": "docs",
+  "section_sources": {
+    "overview": "overview.md",
+    "guides-setup": "guides/setup.md",
+    "policy-data-handling": "policy/data-handling.md"
+  },
+  "link_map": {
+    "overview.md": "#overview",
+    "setup.md": "#guides-setup",
+    "data-handling.md": "#policy-data-handling"
+  },
+  "chips": [
+    {
+      "label": "Recommended",
+      "class": "ok"
+    },
+    {
+      "label": "Use with care",
+      "class": "cond"
+    },
+    {
+      "label": "Ask first",
+      "class": "case"
+    },
+    {
+      "label": "Not recommended",
+      "class": "no"
+    }
+  ],
+  "skip_prefixes": [
+    "**Status:**",
+    "**Owner:**"
+  ],
+  "site_dir": "site",
+  "covers_dir": "covers",
+  "cover_section": "overview",
+  "page_repo_path": "examples/handbook/handbook.html",
+  "versions": [
+    {
+      "key": "orig",
+      "file": "index.html",
+      "url": "/",
+      "label": "Original",
+      "subtitle_suffix": "",
+      "ref": null
+    },
+    {
+      "key": "plain",
+      "file": "plain.html",
+      "url": "/plain",
+      "label": "Plain",
+      "subtitle_suffix": " · plain voice",
+      "sources_root": "voices/plain"
+    }
+  ],
+  "static_assets": [
+    "robots.txt",
+    "handbook.pdf"
+  ],
+  "pdf": "handbook.pdf",
+  "pdf_label": "draft",
+  "title_page": {
+    "title": "Team tools handbook",
+    "subtitle": "example",
+    "source": "docs",
+    "note": "Worked example shipped with the tali plugin"
+  }
+}

@@ -4,19 +4,26 @@
   "_comment_sources_root": "Directory holding the source prose: the version facts change in. Every .md file under it is checked unless 'documents' narrows the set.",
   "sources_root": "docs",
 
-  "_comment_voices": "Voice key -> directory holding that voice's copies, mirroring sources_root file for file. A source document with no copy in a voice directory fails that voice.",
+  "_comment_sources_ref": "Optional git ref (commit, tag or branch) to read the sources from instead of the working tree, so the check runs against the pinned original rather than whatever happens to be checked out. The config file must sit inside the repository. Delete this key to read sources_root from the working tree.",
+  "sources_ref": "a1b2c3d",
+
+  "_comment_voices": "Voice key -> where that voice's copies live, mirroring sources_root file for file. A string is a working-tree directory. An object reads the copies from a git ref: {\"ref\": \"voice-casual\"} alone reads the same paths as sources_root on that branch or commit (the voice-review branch-per-voice pattern); add \"dir\" to read a different directory of the repository at that ref, or give \"dir\" alone for a working-tree directory. A source document with no copy in a voice fails that voice.",
   "voices": {
     "plain": "voices/plain",
-    "casual": "voices/casual"
+    "casual": { "ref": "voice-casual" },
+    "exec": { "ref": "voice-exec", "dir": "voices/exec" }
   },
 
   "_comment_documents": "Optional explicit document list, relative to sources_root. Omit to check every .md file.",
   "documents": ["README.md", "guides/GETTING_STARTED.md"],
 
+  "_comment_skeletons_dir": "Optional directory of fact skeletons, read from the working tree: one per source document at the same relative path with .md replaced by .skeleton.md (guides/GETTING_STARTED.md -> skeletons/guides/GETTING_STARTED.skeleton.md). Bullets under the '## Verbatim', '## Labels', '## Fixed phrases' and '## Qualifiers' headings, written as '- Q1: phrase' (surrounding backticks are stripped), become required phrases for that document and report as 'skeleton verbatim', 'skeleton label', 'skeleton fixed phrase' or 'skeleton qualifier'. '## Claims' and '## Distinctions' are left to the verifier. A skeleton phrase the source no longer contains is a config error (exit 2), because the skeleton drifted. A document with no skeleton file is simply not skeleton-checked.",
+  "skeletons_dir": "skeletons",
+
   "_comment_auto": "Items extracted from each source automatically. All on by default: code (fenced blocks verbatim, inline code spans), urls, numbers (digit tokens outside code, ignoring list and heading markers and tokens glued to letters such as Sev-1 or v2). Turn one off only for a document set where it produces noise you have reviewed.",
   "auto": { "code": true, "urls": true, "numbers": true },
 
-  "_comment_fidelity": "The voice profile's fidelity list, as verbatim phrases. 'all' phrases are required in a voice copy whenever its source contains them. 'documents' phrases are required for that document, and the check refuses to run (exit 2) if the source no longer contains one, because the list has gone stale. Matching ignores whitespace and * emphasis, so rewrapped or bolded text still matches.",
+  "_comment_fidelity": "The voice profile's fidelity list, as verbatim phrases. 'all' phrases are required in a voice copy whenever its source contains them. 'documents' phrases are required for that document, and the check refuses to run (exit 2) if the source no longer contains one, because the list has gone stale. Matching ignores whitespace and * emphasis, so rewrapped or bolded text still matches, and looks inside code blocks and inline code as well as prose.",
   "fidelity": {
     "all": ["Sev-1", "Sev-2", "Sev-3", "Sev-4", "public or fully synthetic data"],
     "documents": {
