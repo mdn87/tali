@@ -15,7 +15,7 @@ Named for Taliesin, the bard who shaped the same material for whatever court he 
 ## The model
 
 - **Source × spec = voice copy.** Facts change only in the source prose; voices change only in voice specs; every voice copy is regenerable output.
-- **Fidelity is enforced, not hoped for.** Each document set declares a fidelity list (labels, taxonomies, paths, numbers, load-bearing qualifiers, distinctions). Every pass builds a fact skeleton first and is cross-verified against it by independent agents.
+- **Fidelity is enforced, not hoped for.** Each document set declares a fidelity list (labels, taxonomies, paths, numbers, load-bearing qualifiers, distinctions). Every pass builds a fact skeleton first and is cross-verified against it by independent agents, and `tools/check_fidelity.py` reruns the verbatim half as a pass/fail check.
 - **Versions live in git refs.** The original prose is pinned to a commit, persona variants to branches, so comparisons survive merges.
 - **Interactive personas interoperate.** A masq profile or a tone skill's style guide can serve as a voice spec; see `docs/masq-integration.md`.
 
@@ -30,7 +30,9 @@ Or from a local clone: `/plugin marketplace add C:\path\to\tali`.
 
 ## Tools
 
-`tools/` holds the three config-driven build scripts used by voice-publish (`build_page.py`, `build_site.py`, `build_pdf.py`) and `tali.site.example.json` documenting the config. Python 3.12+, stdlib only; PDF rendering uses headless Chrome or Edge.
+`tools/` holds the three config-driven build scripts used by voice-publish (`build_page.py`, `build_site.py`, `build_pdf.py`) and `tali.site.example.json` documenting the config.
+
+`tools/check_fidelity.py` is the rerunnable fidelity check: given a `tali.fidelity.json` (see `tali.fidelity.example.json`), it confirms every voice copy still carries the source's code, URLs, numbers, and declared fidelity phrases, and exits 0 on pass, 1 on any break. Tests: `python -m unittest discover -s tests`. Python 3.12+, stdlib only; PDF rendering uses headless Chrome or Edge.
 
 ## Provenance
 

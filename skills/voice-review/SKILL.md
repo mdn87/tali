@@ -21,7 +21,7 @@ Run a document set through the full multi-voice production round: define the aud
 
 4. **Voice passes.** One pass per voice, each pass running the voice-mutate pipeline per file (fact skeleton → rewrite → de-tell → self-check). Run files within a pass as parallel subagents; run voices as separate passes or separate branches (a branch per persona variant keeps the git-ref versioning clean).
 
-5. **Adversarial verification.** For each voice pass, spawn independent verifier agents that see only the source, the fact skeleton, and the rewrite — not the rewrite reasoning. They check the fidelity checklist: permission-vs-effectiveness drift, dropped enumerations, opened closed-lists, weakened qualifiers, blurred distinctions. Findings are fixed in the rewrite and re-verified. A pass completes when verification comes back clean, not when the rewrite finishes.
+5. **Adversarial verification.** For each voice pass, spawn independent verifier agents that see only the source, the fact skeleton, and the rewrite — not the rewrite reasoning. They check the fidelity checklist: permission-vs-effectiveness drift, dropped enumerations, opened closed-lists, weakened qualifiers, blurred distinctions. Findings are fixed in the rewrite and re-verified. A pass completes when verification comes back clean, not when the rewrite finishes. The repeatable gate is `${CLAUDE_PLUGIN_ROOT}/tools/check_fidelity.py`: write the base voice's fidelity list into the set's `tali.fidelity.json` once, then every voice pass and every later round must exit 0 on it. Agent verification still covers the meaning drift the script can't see.
 
 6. **Comparison and redline artifacts.** Produce what the human round needs:
    - a comparison site with a version switcher (voice-publish skill) so a reviewer can flip voices while staying on the same section;
@@ -35,4 +35,4 @@ Run a document set through the full multi-voice production round: define the aud
 - Facts change only in the source, voices change only in the specs, and every voice copy is disposable output of (source × spec).
 - Reference files are byte-identical across all voices.
 - Fidelity items (labels, taxonomies, qualifiers, distinctions, code, paths, numbers) are verbatim-identical across all voices — this is what the verifiers exist to prove.
-- Keep a record per round: refs compared, passes run, verifier findings, resolutions. The next round starts from that record.
+- Keep a record per round: refs compared, passes run, fidelity check output, verifier findings, resolutions. The next round starts from that record.

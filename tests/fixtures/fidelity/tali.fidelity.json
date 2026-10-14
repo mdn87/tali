@@ -1,0 +1,13 @@
+{
+  "sources_root": "docs",
+  "voices": {
+    "plain": "voices/plain",
+    "broken": "voices/broken"
+  },
+  "fidelity": {
+    "all": ["Sev-1", "Sev-2", "Sev-3", "Sev-4", "public or fully synthetic data", "reduces exposure but is not a sandbox"],
+    "documents": {
+      "guides/setup.md": ["only when the sync service is running", "the desktop app does not"]
+    }
+  }
+}

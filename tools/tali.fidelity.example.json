@@ -1,0 +1,31 @@
+{
+  "_comment": "Example config for check_fidelity.py, the rerunnable pass/fail fidelity check. Copy this file next to your documents as tali.fidelity.json, edit the values, and run the script with --config pointing at it (or from its directory, where it is found by default). Keys beginning with an underscore are comments and are ignored. All paths are relative to the directory containing this file.",
+
+  "_comment_sources_root": "Directory holding the source prose: the version facts change in. Every .md file under it is checked unless 'documents' narrows the set.",
+  "sources_root": "docs",
+
+  "_comment_voices": "Voice key -> directory holding that voice's copies, mirroring sources_root file for file. A source document with no copy in a voice directory fails that voice.",
+  "voices": {
+    "plain": "voices/plain",
+    "casual": "voices/casual"
+  },
+
+  "_comment_documents": "Optional explicit document list, relative to sources_root. Omit to check every .md file.",
+  "documents": ["README.md", "guides/GETTING_STARTED.md"],
+
+  "_comment_auto": "Items extracted from each source automatically. All on by default: code (fenced blocks verbatim, inline code spans), urls, numbers (digit tokens outside code, ignoring list and heading markers and tokens glued to letters such as Sev-1 or v2). Turn one off only for a document set where it produces noise you have reviewed.",
+  "auto": { "code": true, "urls": true, "numbers": true },
+
+  "_comment_fidelity": "The voice profile's fidelity list, as verbatim phrases. 'all' phrases are required in a voice copy whenever its source contains them. 'documents' phrases are required for that document, and the check refuses to run (exit 2) if the source no longer contains one, because the list has gone stale. Matching ignores whitespace and * emphasis, so rewrapped or bolded text still matches.",
+  "fidelity": {
+    "all": ["Sev-1", "Sev-2", "Sev-3", "Sev-4", "public or fully synthetic data"],
+    "documents": {
+      "guides/GETTING_STARTED.md": ["only when the sync service is running", "the desktop app does not"]
+    }
+  },
+
+  "_comment_waivers": "Reviewed exceptions. Each needs the exact item and a reason; voice and document are optional and narrow the waiver. Waived items are still printed so the exception stays visible. A waiver without a reason is a config error.",
+  "waivers": [
+    { "voice": "casual", "document": "README.md", "item": "3", "reason": "owner approved 'three' spelled out in the casual voice" }
+  ]
+}

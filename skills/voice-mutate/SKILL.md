@@ -29,6 +29,7 @@ Per file, in order — do not merge the steps:
 3. **De-tell pass.** Strip AI-isms and rhetorical negation-contrasts per `references/ai-ism-flags.md`. Load-bearing negations stay.
 4. **Self-check.** Walk the fact skeleton against the rewrite. Every skeleton item must survive with its meaning intact.
 5. **Cross-verify.** For anything beyond a single small file, have an independent agent (fresh context, no sight of the rewrite reasoning) verify the rewrite against the skeleton using the checklist in `references/fidelity-checklist.md`. Fix fidelity breaks in the rewrite — never by weakening the skeleton.
+6. **Run the fidelity check.** When the document set has a `tali.fidelity.json`, run `python ${CLAUDE_PLUGIN_ROOT}/tools/check_fidelity.py --config <path>` and treat a non-zero exit as an unfinished pass. It proves the verbatim items survived; steps 4 and 5 still cover meaning drift.
 
 For document sets, run files through this pipeline independently (subagents in parallel are fine); collect cross-verification findings and fix before declaring the pass complete.
 

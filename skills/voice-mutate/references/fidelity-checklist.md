@@ -33,6 +33,14 @@ The second pass checks specifically for:
 - **Qualifiers intact.** Every scope-limiting clause from the skeleton is still attached to its claim. A qualifier moved so far from its claim that the claim reads unconditional counts as dropped.
 - **Distinctions intact.** Every pair the source distinguishes is still distinguishable in the rewrite. If both members now read as the same thing, the rewrite is wrong even if each sentence is individually accurate.
 
-## 4. Failure handling
+## 4. The rerunnable check
 
-A fidelity break is fixed in the rewrite, never patched by weakening the skeleton. If the rewrite can't carry an item gracefully, the prose bends — restore the qualifier, re-close the list, re-split the blurred distinction — and the voice pass re-runs on that passage. Editing the skeleton to make the check pass defeats the entire procedure; the skeleton only changes if it misread the source, and that's verified against the source, not against the rewrite.
+The verbatim half of this procedure is mechanical, so it runs as a script instead of a judgment call: `tools/check_fidelity.py`, driven by a `tali.fidelity.json` beside the document set (see `tools/tali.fidelity.example.json`). For every source document and every voice it requires each fenced code block, inline code span, URL, and number from the source, plus every phrase on the fidelity list the source contains, and prints PASS or FAIL per voice copy. Exit status 0 means every copy passed, 1 means at least one break, 2 means the config is wrong (including a fidelity phrase the source no longer contains).
+
+Put labels, taxonomy members, fixed phrases, load-bearing qualifiers, and the wording that keeps a distinction sharp on the fidelity list as verbatim phrases; that is what makes them checkable. A pass is required before a voice pass is declared complete, and it is rerun after every fix and every redline.
+
+What the script cannot judge is meaning drift in paraphrased prose: permission-vs-effectiveness drift, a qualifier still present but moved off its claim, a closed list reopened with "such as." Those stay with the cross-verification in section 3. A clean script run is necessary, not sufficient.
+
+## 5. Failure handling
+
+A fidelity break is fixed in the rewrite, never patched by weakening the skeleton. If the rewrite can't carry an item gracefully, the prose bends — restore the qualifier, re-close the list, re-split the blurred distinction — and the voice pass re-runs on that passage. The same goes for the script: a break is fixed in the voice copy or recorded as a waiver with a reason, never cleared by deleting the phrase from the fidelity list. Editing the skeleton to make the check pass defeats the entire procedure; the skeleton only changes if it misread the source, and that's verified against the source, not against the rewrite.
