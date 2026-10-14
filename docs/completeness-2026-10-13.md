@@ -1,8 +1,8 @@
 # tali completeness review, 2026-10-13
 
-Scope: every file in the repository at commit `24a173f`, plus live probes of the tools and the local plugin install. Nothing was changed in the plugin; this is a report.
+Scope: every file in the repository at commit `187911f` (`24a173f` before the commit-email rewrite of 2026-10-14), plus live probes of the tools and the local plugin install. Nothing was changed in the plugin; this is a report.
 
-Status, same day: items 1 to 3 and 5 to 13 are closed in version 0.2.0 (see `CHANGELOG.md`). Item 4 is open on two decisions that are the owner's: whether the repository goes public, and when the local plugin install is updated.
+Status, 2026-10-14: all thirteen items are closed. Items 1 to 3 and 5 to 13 shipped in version 0.2.0 (see `CHANGELOG.md`); for item 4 the repository was made public and the local install updated to 0.2.0.
 
 ## What was probed and holds up
 
@@ -18,7 +18,7 @@ Status, same day: items 1 to 3 and 5 to 13 are closed in version 0.2.0 (see `CHA
 1. **A page-shell template or scaffold for voice-publish.** The three scripts require an HTML shell that already exists with `<div class="brand">`, `<div class="sub">`, `<nav class="side">` containing `grp-label` and `navlink` elements, `<section class="doc" id="doc-…">` blocks with a `<p class="crumb">`, and a `<style>` block. The switcher CSS that `build_site.py` injects also depends on CSS custom properties the shell must define (`--line`, `--surface`, `--accent`, `--accent-wash`, `--accent-ink`, `--muted`, `--ink`) and on the Public Sans and IBM Plex Mono fonts. None of this ships. To run the probe I reverse-engineered the shell from `build_site.py`. A new project cannot publish without doing the same. This is the largest single gap.
 2. **Fidelity check over git refs.** `voice-review` keeps each voice on its own branch and pins the original to a commit, but `check_fidelity.py` only reads voice copies from directories. There is no way to point it at `voice-casual:docs/` without first exporting the branch by hand. Either the checker learns a per-voice `ref`, or the skills document an export step. This gap was introduced by the 2026-10-13 work and is not covered by its tests.
 3. **Quickstart and a worked example.** There is no end-to-end walkthrough for a fresh project: define audiences, fill a voice profile, run a pass, run the check, build the site. The only filled-in voice profile and fidelity list in the repo is the test fixture under `tests/fixtures/fidelity/`, which is sized for the unit tests, not for learning from.
-4. **Distribution.** The GitHub repository is private (`gh repo view mdn87/tali` reports `PRIVATE`), so `/plugin marketplace add mdn87/tali` only works for a machine signed in to GitHub as the owner. The chip `tali:marketplace-install` says the repo was pushed to a public remote; that claim is wrong. The authoring machine's own install (`installed_plugins.json`, `tali@tali`) sits at commit `35d5909`, installed 2026-08-30, and its `tools/` directory holds only the three build scripts, so even here the installed plugin predates `check_fidelity.py`. No plugin update has been run since.
+4. **Distribution.** The GitHub repository is private (`gh repo view mdn87/tali` reports `PRIVATE`), so `/plugin marketplace add mdn87/tali` only works for a machine signed in to GitHub as the owner. The chip `tali:marketplace-install` says the repo was pushed to a public remote; that claim is wrong. The authoring machine's own install (`installed_plugins.json`, `tali@tali`) sits at commit `db04f5e` (`35d5909` before the rewrite), installed 2026-08-30, and its `tools/` directory holds only the three build scripts, so even here the installed plugin predates `check_fidelity.py`. No plugin update has been run since.
 
 ### Tier 2: turns agent judgment into repeatable artifacts
 

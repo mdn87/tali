@@ -1,6 +1,7 @@
 __pycache__/
 *.pyc
 site/
+!tests/fixtures/site/
 
 # Local credentials and agent scratch; sanitized templates remain versioned.
 .env*
