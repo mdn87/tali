@@ -189,7 +189,7 @@
       "aheadOfPrereqs": null,
       "timestamps": {
         "createdAt": "2026-09-05T12:00:00.000Z",
-        "updatedAt": "2026-10-14T03:00:00.000Z"
+        "updatedAt": "2026-10-14T04:30:00.000Z"
       },
       "evidence": [
         {
@@ -209,6 +209,12 @@
           "at": "2026-10-14T03:00:00.000Z",
           "kind": "note",
           "message": "Unblocked on access: the repo is public, so a machine that never held the clone can run the marketplace add without credentials. Still not attempted."
+        },
+        {
+          "entryId": "tali:install-outside-origin:note-2026-10-14-pickup",
+          "at": "2026-10-14T04:30:00.000Z",
+          "kind": "note",
+          "message": "Pickup prompt written for the work machine: marketplace install, test suite, worked example, then one real document through voice-mutate and the fidelity check. Awaiting its report."
         }
       ]
     },

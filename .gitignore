@@ -12,6 +12,7 @@ site/
 .lugos-wip/
 *.sync-conflict-*
 
-# Session handoff
+# Session handoff and local pickup notes
 .claude/handoff.md
 .claude/handoff-history/
+.claude/work-agent-prompt.md
