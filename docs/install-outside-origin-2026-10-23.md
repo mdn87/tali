@@ -2,9 +2,10 @@
 
 The marketplace installation and shipped checks passed on a second host. A
 subsequent real-document voice pass also passed; see the
-[validation continuation](committee-brief-validation-2026-10-23.md). The step
-remains blocked only on confirmation of the host's prior clone history. The
-full second-campaign round was not started.
+[validation continuation](committee-brief-validation-2026-10-23.md). The owner
+accepted the result and confirmed that Lugos-host never held a source clone
+before installation. This step is done; the full second-campaign round is next
+and has not been started.
 
 ## Target and provenance
 
@@ -12,7 +13,7 @@ full second-campaign round was not started.
 - Claude Code: 2.1.302. Python: 3.13.5.
 - Before installation, no Tali paths were found within five levels of the
   operator home or the service repository directory; the plugin list contained
-  no Tali installation. This establishes observed absence, not historical absence.
+  no Tali installation. The owner subsequently confirmed no prior source clone.
 - Applemac was excluded because its MyDocs directory already contained Tali.
 - Installed version: 0.2.0, commit
   `4358a29d6915317ae2ee8a9a27279cafa551ba9e`.
@@ -23,8 +24,8 @@ The public marketplace was added with `claude plugin marketplace add mdn87/tali`
 then installed with `claude plugin install tali@tali`. Both commands succeeded.
 The CLI cloned the marketplace over HTTPS and enabled the plugin at user scope.
 `claude plugin details tali@tali` listed `voice-mutate`, `voice-publish`, and
-`voice-review`. This verifies the installed component inventory; a voice-mutate
-invocation on a real document has not yet been demonstrated.
+`voice-review`. This verified the installed component inventory. The subsequent
+real-document invocation is recorded in the validation continuation.
 
 The checks ran directly from the installed plugin package, without a separate
 source checkout. Actual output:
@@ -48,16 +49,16 @@ file ResourceWarnings in the existing build-tool tests and page builder; they
 did not fail the suite. An extra diagnostic initially used a nonexistent test
 class; the corrected targeted invocation confirmed the browser-related skip.
 
-The installation and verification each completed in seconds. No campaign
-document, skeleton, or voice copy was created or transferred. Raw installation,
+The installation and verification each completed in seconds. During this initial
+installation session, no campaign document, skeleton, or voice copy was created
+or transferred. Raw installation,
 package metadata, and check output are retained in the author's ignored
 `.lugos-wip/install-outside-origin/` directory.
 
-## Acceptance evidence remaining after the initial installation session
+## Acceptance and closeout
 
-Confirm that Lugos-host never held a Tali source clone, or identify another
-qualifying machine. Select one real document from another campaign on that
-machine. Run the installed voice-mutate skill, retain the source, skeleton, and
-voice copy there, and record fidelity and de-tell results plus any corrections.
-The validation continuation now supplies the document-pass evidence. Keep this
-chip as the next step until the host's prior clone history is confirmed.
+The validation continuation supplies the real-document voice-pass evidence.
+On 2026-10-23 the owner accepted the rewritten brief and confirmed that Lugos-host
+never held a Tali source clone before the marketplace install. Both acceptance
+requirements are now satisfied. The board marks this step done and names the
+full second-campaign round as the next step; that round remains unstarted.

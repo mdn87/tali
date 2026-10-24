@@ -5,10 +5,11 @@ The marketplace-installed Tali 0.2.0 plugin on Lugos-host produced a plain
 professional version. Its mechanical checks passed, and an independent semantic
 review found one wording correction, which was applied and checked.
 
-The board step remains blocked only on confirmation that Lugos-host never held
-a Tali source clone before the marketplace installation. Observed absence before
-installation does not establish the host's entire history. The later full
-multi-voice campaign round was not started.
+The owner accepted the rewritten brief and confirmed on 2026-10-23 that
+Lugos-host never held a Tali source clone before the marketplace installation.
+That confirmation closes the remaining provenance requirement, and the board
+step is done. The later full multi-voice campaign round is next and has not
+been started.
 
 ## Execution evidence
 

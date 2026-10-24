@@ -178,7 +178,7 @@
       "projectId": "tali",
       "title": "Prove installation outside the origin",
       "summary": "Install from the marketplace on a machine that never held the source clone and run voice-mutate on a document from a different campaign.",
-      "stage": "blocked",
+      "stage": "done",
       "sequence": 50,
       "prereqs": [
         "tali:marketplace-install",
@@ -189,7 +189,7 @@
       "aheadOfPrereqs": null,
       "timestamps": {
         "createdAt": "2026-09-05T12:00:00.000Z",
-        "updatedAt": "2026-10-24T02:31:28.556Z"
+        "updatedAt": "2026-10-24T02:54:47.182Z"
       },
       "evidence": [
         {
@@ -227,6 +227,12 @@
           "at": "2026-10-24T02:31:28.556Z",
           "kind": "note",
           "message": "Real brief passed 147 fidelity checks and independent review after one wording fix. No strip findings. Only prior clone history confirmation remains."
+        },
+        {
+          "entryId": "tali:install-outside-origin:accepted-2026-10-23",
+          "at": "2026-10-24T02:54:47.182Z",
+          "kind": "stage-change",
+          "message": "Owner accepted the rewritten brief and confirmed Lugos-host never held a source clone before installation. Marketplace and real-document proof are complete."
         }
       ]
     },
