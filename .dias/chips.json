@@ -178,7 +178,7 @@
       "projectId": "tali",
       "title": "Prove installation outside the origin",
       "summary": "Install from the marketplace on a machine that never held the source clone and run voice-mutate on a document from a different campaign.",
-      "stage": "planned",
+      "stage": "blocked",
       "sequence": 50,
       "prereqs": [
         "tali:marketplace-install",
@@ -189,7 +189,7 @@
       "aheadOfPrereqs": null,
       "timestamps": {
         "createdAt": "2026-09-05T12:00:00.000Z",
-        "updatedAt": "2026-10-14T04:30:00.000Z"
+        "updatedAt": "2026-10-24T01:37:24.734Z"
       },
       "evidence": [
         {
@@ -215,6 +215,12 @@
           "at": "2026-10-14T04:30:00.000Z",
           "kind": "note",
           "message": "Pickup prompt written for the work machine: marketplace install, tests, the worked example, then one real document through the voice pass and fidelity check. Report pending."
+        },
+        {
+          "entryId": "tali:install-outside-origin:remote-proof-2026-10-23",
+          "at": "2026-10-24T01:37:24.734Z",
+          "kind": "note",
+          "message": "Lugos-host marketplace install and 71 tests passed with one skip; example checks passed. Blocked on prior clone history confirmation and a real campaign document."
         }
       ]
     },

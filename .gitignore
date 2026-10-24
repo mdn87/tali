@@ -16,3 +16,6 @@ site/
 .claude/handoff.md
 .claude/handoff-history/
 .claude/work-agent-prompt.md
+.Codex/handoff.md
+.Codex/handoff-history/
+.lugos-audit/
