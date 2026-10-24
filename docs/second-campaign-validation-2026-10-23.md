@@ -1,5 +1,10 @@
 # Second-campaign review round, 2026-10-23
 
+**Status correction after owner review:** the owner found the four versions
+practically identical. The initial fidelity and publication results below remain
+valid, but they did not establish meaningful voice differentiation. The board
+step has been reopened to revise voice definitions and add that acceptance check.
+
 Tali completed a full three-voice review and publication round on one real
 document from a different campaign. The owner requested this round after
 accepting the plain rewrite and closing the clean-machine installation proof.
@@ -57,6 +62,7 @@ The private repository has no remote. Campaign source and generated content
 remain outside the public Tali history; only this evidence and board metadata
 are published.
 
-All seven current milestone steps are complete. Future human feedback can
-start another revision, but no unresolved fidelity finding or missing artifact
-remains in this round.
+The initial round closed with no unresolved fidelity finding or missing artifact.
+Subsequent owner review exposed insufficient voice differentiation, so the
+second-campaign step is active again. The clean-machine installation proof
+remains complete. Target tones are being clarified before a new rewrite.

@@ -61,4 +61,5 @@ The validation continuation supplies the real-document voice-pass evidence.
 On 2026-10-23 the owner accepted the rewritten brief and confirmed that Lugos-host
 never held a Tali source clone before the marketplace install. Both acceptance
 requirements are now satisfied. The board marks this step done. The subsequent
-full second-campaign round is also complete, as recorded in the reuse evidence.
+second-campaign round was reopened for voice differentiation after owner review,
+as recorded in the reuse evidence.

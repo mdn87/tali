@@ -242,7 +242,7 @@
       "projectId": "tali",
       "title": "Reuse on a second campaign",
       "summary": "Run the full multi-voice round on a second real document campaign and compare effort against the first.",
-      "stage": "done",
+      "stage": "active",
       "sequence": 60,
       "prereqs": [
         "tali:install-outside-origin"
@@ -252,7 +252,7 @@
       "aheadOfPrereqs": null,
       "timestamps": {
         "createdAt": "2026-09-05T12:00:00.000Z",
-        "updatedAt": "2026-10-24T03:13:29.786Z"
+        "updatedAt": "2026-10-24T03:20:44.138Z"
       },
       "evidence": [
         {
@@ -272,6 +272,12 @@
           "at": "2026-10-24T03:13:29.786Z",
           "kind": "stage-change",
           "message": "One real document completed a three-voice round: fidelity, independent review, comparison pages, PDFs and redlines passed. Effort compared with owner recall."
+        },
+        {
+          "entryId": "tali:second-campaign-reuse:voice-feedback-2026-10-23",
+          "at": "2026-10-24T03:20:44.138Z",
+          "kind": "stage-change",
+          "message": "Owner found the voices practically identical. Reopened to improve voice differentiation; existing installation and fidelity evidence remain valid."
         }
       ]
     }

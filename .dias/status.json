@@ -4,17 +4,17 @@
   "projectLabel": "Tali",
   "assessmentState": "scored",
   "assessmentScope": "current-milestone",
-  "percentComplete": 100,
-  "milestonePhase": "closeout",
+  "percentComplete": 85,
+  "milestonePhase": "build-and-validate",
   "portfolioGroup": "document-systems",
   "displayPriority": 500,
-  "assessedAt": "2026-10-24T03:13:29.786Z",
+  "assessedAt": "2026-10-24T03:20:44.138Z",
   "confidence": "reported",
   "currentMilestone": "Shipped plugin: voice mutation, multi-voice fidelity review, comparison publishing and PDF build tools, installed through the marketplace and consumed by masq personas.",
-  "remainingSummary": "All seven milestone steps are complete. A second campaign passed the full three-voice review and publication round; no required work remains.",
-  "nextChipId": null,
+  "remainingSummary": "Owner found too little difference between voices. Revise the voice definitions and demonstrate distinct voices while preserving facts.",
+  "nextChipId": "tali:second-campaign-reuse",
   "source": {
-    "label": "Second campaign completed with fidelity checks, independent review, publication checks and an effort comparison",
+    "label": "Owner review found insufficient voice differentiation after the initial round closeout",
     "updatedAt": "2026-10-23"
   }
 }
