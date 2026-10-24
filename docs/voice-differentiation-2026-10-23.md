@@ -1,5 +1,9 @@
 # Voice differentiation after owner feedback
 
+A subsequent [audience-depth round](audience-depth-validation-2026-10-23.md)
+adds selective summaries and expanded explanation following further feedback.
+This record describes the preceding full-coverage voice comparison.
+
 The owner found the first four-version comparison practically identical.
 Fidelity checks had passed, but the voice profiles were too similar and there
 was no separate check of whether readers could distinguish the voices. The

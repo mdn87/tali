@@ -1,12 +1,17 @@
 ---
 name: voice-mutate
-description: This skill should be used when the user asks to rewrite a document or document set into a defined voice or for a target audience — "rewrite this in the plain voice", "do a voice pass on these docs", "adapt this for executives / new hires / engineers", "apply the persona guide to this", "de-AI this document", "run the de-tell pass" — or to define a new voice spec or persona guide for a document set. Facts, labels, and policy meaning never change; only the prose does.
-version: 0.2.0
+description: This skill should be used when the user asks to rewrite a document or document set into a defined voice or for a target audience — "rewrite this in the plain voice", "do a voice pass on these docs", "adapt this for executives / new hires / engineers", "apply the persona guide to this", "de-AI this document", "run the de-tell pass" — or to create audience summaries, beginner explanations, deeper technical editions, or voice specs. Selective coverage is explicit; factual meaning never changes.
+version: 0.3.0
 ---
 
 # Voice mutate
 
-Rewrite prose into a defined voice while preserving every fact, label, number, qualifier, and distinction the source carries. Voice is downstream of accuracy: a rewrite that blurs one fidelity item is wrong no matter how well it reads.
+Shape prose for its reader while preserving factual meaning and the limits of every retained claim. Choose the coverage mode before drafting:
+
+- **Full-coverage voice rewrite:** retain every fact, label, number, qualifier and distinction. Use the procedure below. This remains the default for a request to change tone or voice.
+- **Audience adaptation:** for summaries, beginner explanations, different detail levels or technical expansion, read [references/audience-adaptation.md](references/audience-adaptation.md). Select and explain material according to a recorded audience contract. Keep the source and complete skeleton unchanged; record omissions and support added explanation.
+
+Infer sensible tiers from the request and proceed. Do not require the user to choose routine tone, length or presentation details. A request for a short beginner summary authorizes selective coverage, but not hiding a limitation that changes the meaning of a retained claim.
 
 ## Inputs
 
@@ -20,7 +25,7 @@ Establish these before touching prose. Ask only for what cannot be inferred:
    - a tone skill's style guide (e.g., an afterdark-style skill's `references/style-guide.md`).
 3. **Fidelity list**: what never changes. If the voice spec has no fidelity list, build one with the owner before rewriting (categories and procedure in `references/fidelity-checklist.md`). The mechanical half lives in the document set's `tali.fidelity.json` and its fact skeletons, so `tools/check_fidelity.py` can enforce it.
 
-## Procedure
+## Full-coverage procedure
 
 Per file, in order — do not merge the steps:
 

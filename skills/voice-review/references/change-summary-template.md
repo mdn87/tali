@@ -22,7 +22,10 @@ Voice ref: [branch or directory] at [commit hash]
 - [file]: [what got shorter and what carried it: "the three-paragraph rationale is now one paragraph; the qualifier Q1 stays attached to the first sentence"]
 
 ## What stayed verbatim
+For full-coverage copies:
 - Everything in the skeleton's Verbatim, Labels, Fixed phrases, and Qualifiers sections. Fidelity check: [PASS, exit 0, date].
+
+For selective or expanded editions, also record the coverage contract, condensed/deferred source groups and reasons, full-detail destination, added explanations and their support, and the exact validation scope. Do not claim a summary retained all source items.
 
 ## Verifier flags and resolutions
 | Flag | File | Item | What the verifier saw | Resolution |

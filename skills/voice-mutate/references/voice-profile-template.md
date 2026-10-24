@@ -4,6 +4,11 @@ Purpose: a fill-in template for defining the BASE VOICE of a document set. The r
 
 **This is a style spec, not a content license.** The fidelity list at the bottom always wins: lower reading complexity, never lower conceptual precision.
 
+This template describes full-coverage voice passes. For a selective summary or
+expanded explanation, establish the coverage/depth contract in
+[audience-adaptation.md](audience-adaptation.md) first. A style spec alone cannot
+define what a summary may omit.
+
 ## The voice in one paragraph
 
 > [Fill in: one paragraph describing how the writer talks to the reader.]

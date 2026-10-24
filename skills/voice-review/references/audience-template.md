@@ -20,7 +20,13 @@ Copy the block once per audience. Keep the file beside the voice specs it drives
 
 **Channel.** [Where the words land: published handbook, internal wiki, print manual, executive brief. Sets the register calibration test in the voice profile.]
 
+**Coverage and depth.** [Full-coverage voice rewrite / selective summary / expanded explanation. Essential claims, risks and decisions; groups that may be condensed or deferred and why; concepts needing explanation. Keep the full source skeleton unchanged.]
+
+**Reading budget.** [Approximate time and length appropriate to the task. A scope guide, not a padding target.]
+
 **Acceptance test.** [One observable check: "a new hire can complete the setup guide without opening a second document", "an executive can state the three risks after one read".]
+
+**Validation scope.** [Full-source mechanical check plus meaning review, or selective-coverage and included-assertion review. Record actual evidence; agent judgment is not a human comprehension test.]
 
 **Out of scope for this audience.** [Documents or sections this audience does not get, or gets in the base voice only.]
 

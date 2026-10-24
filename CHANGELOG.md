@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.3.0 — 2026-10-23
+
+### Added
+- Audience-adaptation procedure for selective summaries, beginner explanations, decision briefs and supported technical expansion, with explicit coverage and reading budgets.
+- Independent checks for essential coverage, included assertions, misleading omissions, supported explanations and useful differences in depth.
+
+### Changed
+- Skills distinguish full-coverage voice rewrites from audience editions. The source skeleton stays intact; selective summaries no longer inherit an inappropriate requirement to repeat every literal source item.
+- Audience, round and change-summary templates record depth, deferred detail, explanation support and actual validation scope. Publication guidance permits different structures across tiers.
+- The existing fidelity checker remains unchanged and mandatory for full-coverage copies. It is not presented as a summary validator.
+
 ## 0.2.0 — 2026-10-13
 
 The gaps from the 2026-10-13 completeness review (`docs/completeness-2026-10-13.md`), closed.

@@ -1,6 +1,6 @@
 # tali
 
-Documents and content shaped for the people who will read them. tali packages a voice-mutation and multi-voice publishing workflow as a Claude Code plugin: rewrite a document set into defined voices for target audiences, verify that no fact, label, or qualifier changed, and publish the results as a comparison site and PDF manuals.
+Documents and content shaped for the people who will read them. tali packages voice rewriting, audience adaptation and publishing as a Claude Code plugin: change tone, summarize for different knowledge levels, or expand technical explanation while preserving factual meaning, then publish comparison pages and PDF manuals.
 
 Named for Taliesin, the bard who shaped the same material for whatever court he addressed.
 
@@ -15,7 +15,8 @@ Named for Taliesin, the bard who shaped the same material for whatever court he 
 ## The model
 
 - **Source × spec = voice copy.** Facts change only in the source prose; voices change only in voice specs; every voice copy is regenerable output.
-- **Fidelity is enforced, not hoped for.** Each document set declares a fidelity list (labels, taxonomies, paths, numbers, load-bearing qualifiers, distinctions) in its voice profile, its `tali.fidelity.json`, and one fact-skeleton file per document. Every pass builds the skeleton first and is cross-verified against it by independent agents, and `tools/check_fidelity.py` reruns the verbatim half as a pass or fail check.
+- **Coverage is explicit.** Tone-only rewrites retain every detail. Requested summaries select relevant material through an audience contract; technical editions may add supported explanations. Each summary records what it condenses or defers and preserves essential risks and decisions. See the [audience-adaptation procedure](skills/voice-mutate/references/audience-adaptation.md).
+- **Fidelity has a stated scope.** Full-coverage copies declare a fidelity list in `tali.fidelity.json` and a fact skeleton, with independent meaning review and a rerunnable verbatim check. Selective summaries keep that full source reference intact and receive separate reviews of essential coverage, included assertions and misleading omissions. The full-copy checker is not a summary validator.
 - **Versions live in git refs.** The original prose is pinned to a commit, persona variants to branches (or to directories, for small sets), so comparisons survive merges.
 - **Interactive personas interoperate.** A masq profile or a tone skill's style guide can serve as a voice spec; see `docs/masq-integration.md`.
 

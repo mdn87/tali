@@ -8,13 +8,13 @@
   "milestonePhase": "closeout",
   "portfolioGroup": "document-systems",
   "displayPriority": 500,
-  "assessedAt": "2026-10-24T03:34:44.560Z",
+  "assessedAt": "2026-10-24T03:56:21.472Z",
   "confidence": "reported",
   "currentMilestone": "Shipped plugin: voice mutation, multi-voice fidelity review, comparison publishing and PDF build tools, installed through the marketplace and consumed by masq personas.",
-  "remainingSummary": "All seven steps complete. Three regenerated voices passed fidelity and independent blind distinction review; publication artifacts rebuilt.",
+  "remainingSummary": "All seven steps are complete. Audience editions now vary selection, length and technical depth, with checks appropriate to each edition.",
   "nextChipId": null,
   "source": {
-    "label": "Distinct voice rewrite completed after owner feedback, with independent fidelity and blind distinction review",
+    "label": "Audience depth editions completed with independent coverage review and verified HTML and PDF artifacts",
     "updatedAt": "2026-10-23"
   }
 }

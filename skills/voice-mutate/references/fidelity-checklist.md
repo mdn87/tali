@@ -2,6 +2,13 @@
 
 Purpose: the verification procedure that keeps a voice rewrite from silently changing what a document says.
 
+This procedure assumes a **full-coverage rewrite**. For requested summaries or
+changes in depth, use [audience-adaptation.md](audience-adaptation.md) to establish
+selective coverage before drafting. Keep the complete source skeleton intact;
+do not weaken it to make a summary pass the full-copy checker. Qualifier,
+distinction and permission/effectiveness checks apply to every included claim,
+along with a check for misleading omissions.
+
 ## 1. Build the fact skeleton BEFORE rewriting
 
 Before touching the prose, extract every load-bearing element of the source into a flat list:

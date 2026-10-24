@@ -252,7 +252,7 @@
       "aheadOfPrereqs": null,
       "timestamps": {
         "createdAt": "2026-09-05T12:00:00.000Z",
-        "updatedAt": "2026-10-24T03:34:44.560Z"
+        "updatedAt": "2026-10-24T03:56:21.472Z"
       },
       "evidence": [
         {
@@ -284,6 +284,12 @@
           "at": "2026-10-24T03:34:44.560Z",
           "kind": "stage-change",
           "message": "Regenerated three distinct voices. Fidelity and independent blind voice review passed; comparison, PDFs and redlines rebuilt. Owner acceptance is not claimed."
+        },
+        {
+          "entryId": "tali:second-campaign-reuse:audience-depth-2026-10-23",
+          "at": "2026-10-24T03:56:21.472Z",
+          "kind": "stage-change",
+          "message": "Created beginner, committee and technical editions at 341, 835 and 2020 words. Independent coverage reviews, full technical fidelity and publication checks passed."
         }
       ]
     }

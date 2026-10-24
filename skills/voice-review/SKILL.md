@@ -1,12 +1,14 @@
 ---
 name: voice-review
-description: This skill should be used when the user wants the full multi-voice production round on a document set — "run the multi-voice pass", "produce the plain and casual versions", "adapt this doc set for each audience", "set up a redline round", "regenerate the voices and compare" — covering audience definition, per-voice rewrite passes, adversarial fidelity verification, and comparison/redline artifacts. For a single-voice rewrite of one document, use voice-mutate instead.
-version: 0.2.0
+description: This skill should be used when the user wants the full multi-voice production round on a document set — "run the multi-voice pass", "produce the plain and casual versions", "adapt this doc set for each audience", "set up a redline round", "regenerate the voices and compare" — covering audience definition, per-voice rewrite passes, adversarial fidelity verification, and comparison/redline artifacts. Also use for audience tiers that vary coverage, reading level and technical depth. For one edition of one document, use voice-mutate instead.
+version: 0.3.0
 ---
 
 # Voice review
 
 Run a document set through the full multi-voice production round: define the audiences, define or select a voice per audience, rewrite in parallel, adversarially verify fidelity, and produce the artifacts a human review round needs. This is the orchestration layer over voice-mutate's per-file pipeline.
+
+When the user wants different depth or length, treat the outputs as audience editions. Read [the audience-adaptation procedure](../voice-mutate/references/audience-adaptation.md) and choose sensible tiers yourself. Do not constrain a beginner summary to the same facts, headings and length as a technical explanation. Record selective coverage explicitly while keeping the source and full skeleton intact.
 
 ## The round, stage by stage
 
@@ -19,12 +21,12 @@ Run a document set through the full multi-voice production round: define the aud
 
 3. **Baseline pin.** Before the first pass, commit the current prose and record the ref. Comparison versions come from git refs, not saved copies; a merge cannot silently rewrite history that a ref pins. That same ref is the `sources_ref` in `tali.fidelity.json` when voices live on branches.
 
-4. **Voice passes.** One pass per voice, each pass running the voice-mutate pipeline per file (fact skeleton → rewrite → de-tell → self-check). Run files within a pass as parallel subagents; run voices as separate passes. Voices can live as directories (`voices/<voice>/`, the layout `tools/init_site.py` sets up) or as branches at the source's own paths (a branch per persona variant keeps the git-ref versioning clean); the checker and the site build read both.
+4. **Voice passes.** One pass per voice, each pass using the full-coverage voice-mutate pipeline or the audience-adaptation procedure selected in its audience contract. Run files within a pass as parallel subagents; run voices as separate passes. Voices can live as directories (`voices/<voice>/`, the layout `tools/init_site.py` sets up) or as branches at the source's own paths (a branch per persona variant keeps the git-ref versioning clean); the checker and the site build read both.
 
-5. **Adversarial verification.** For each voice pass, spawn independent verifier agents that see only the source, the fact skeleton file, and the rewrite — not the rewrite reasoning. They check the fidelity checklist: permission-vs-effectiveness drift, dropped enumerations, opened closed-lists, weakened qualifiers, blurred distinctions. Findings are fixed in the rewrite and re-verified. A pass completes when verification comes back clean, not when the rewrite finishes. The repeatable gate is `${CLAUDE_PLUGIN_ROOT}/tools/check_fidelity.py`: write the base voice's fidelity list into the set's `tali.fidelity.json` once (directory voices as paths, branch voices as `{"ref": "<branch>"}`), then every voice pass and every later round must exit 0 on it, and `tools/check_tells.py` must report no `strip` findings on the voice copies. Agent verification still covers the meaning drift the scripts can't see.
+5. **Adversarial verification.** Spawn independent verifiers for each pass with source, full skeleton, coverage contract and copy, without writer reasoning. Check permission/effectiveness drift, enumeration scope, qualifiers, distinctions, unsupported additions and misleading omissions. Fix findings and re-verify. Full-coverage copies must pass `${CLAUDE_PLUGIN_ROOT}/tools/check_fidelity.py` with their unchanged full-source config. Selective summaries use the audience-adaptation coverage review; do not claim the all-items checker passed them. All copies must have no unresolved `strip` findings from `tools/check_tells.py`. Separately assess whether voices are distinguishable, or depth tiers provide different selection and explanation, according to the request. Word-count differences alone do not establish success.
 
 6. **Comparison and redline artifacts.** Produce what the human round needs:
-   - a comparison site with a version switcher (voice-publish skill) so a reviewer can flip voices while staying on the same section;
+   - a comparison site with a version switcher (voice-publish skill): preserve shared sections where they exist; for different depth tiers, map shared topics or return to the edition's start;
    - a print/PDF manual per voice for redline markup (`build_pdf.py --page site/<voice>.html --pdf <name>.pdf`);
    - a change summary per voice from `references/change-summary-template.md`: what moved, what was compressed, what the verifier flagged and how it was resolved.
 
@@ -34,7 +36,7 @@ Run a document set through the full multi-voice production round: define the aud
 
 - Facts change only in the source, voices change only in the specs, and every voice copy is disposable output of (source × spec).
 - Reference files are byte-identical across all voices.
-- Fidelity items (labels, taxonomies, qualifiers, distinctions, code, paths, numbers) are verbatim-identical across all voices — this is what the verifiers exist to prove.
+- Full-coverage voices retain the entire fidelity contract. Selective editions follow their recorded coverage contracts; every retained claim remains accurate and qualified, with material limitations preserved. Neither mode changes source facts.
 - Keep a record per round in `references/round-record-template.md`: refs compared, passes run, fidelity check output, verifier findings, resolutions. The next round starts from that record.
 
 ## References

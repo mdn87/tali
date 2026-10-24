@@ -26,8 +26,10 @@ Purpose: the record of one multi-voice round, kept so the next round starts from
 | [key] | [n] | [agent/person] | [date] | [parallelism, retries] |
 
 ## Fidelity check
+- Coverage mode per edition: [full / selective / expanded]; tier contracts and deferral maps: [paths]
 - Command: `python tools/check_fidelity.py --config [path]`
 - Result: [PASS/FAIL], [n]/[m] voice copies, exit [code], on [date]
+- Selective editions: [included-assertion, essential-coverage and misleading-omission review; do not claim the full-source script passed them]
 - Waivers added this round: [item, voice, document, reason] or none
 
 ## De-tell lint
@@ -51,4 +53,4 @@ Purpose: the record of one multi-voice round, kept so the next round starts from
 - [decision, who made it, date] (voice-rule changes go to the spec; fact corrections go to the source)
 ```
 
-A round is closed when the fidelity check exits 0 for every voice, the verifier findings table has no unresolved rows, and the artifacts are built from the refs listed above.
+A round closes when every edition passes its recorded coverage contract, full-coverage copies pass the unchanged checker, no verifier findings remain unresolved, the requested voice/depth differences are assessed, and artifacts are built from recorded refs. Selective summaries require their separate coverage review rather than a claim that they retain every source item.

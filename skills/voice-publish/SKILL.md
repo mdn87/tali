@@ -1,7 +1,7 @@
 ---
 name: voice-publish
 description: This skill should be used when the user wants to publish a multi-voice document set as a comparison website or PDF manual — for example "build the voice site", "regenerate the handbook PDF", "publish the voice comparison", or "rebuild the page from markdown".
-version: 0.2.0
+version: 0.3.0
 ---
 
 # Voice Publish
@@ -10,6 +10,12 @@ Publish a set of markdown documents as a single-page comparison website (one
 HTML file per prose voice, joined by a version switcher) and a print-ready PDF
 manual. Four stdlib-only Python scripts do the work, a scaffold and three
 builders, all driven by one JSON config, `tali.site.json`.
+
+For depth tiers, show each edition's purpose and length so readers can choose.
+Different headings and coverage are valid. Test navigation against each tier's
+actual structure: map shared topics explicitly or return to the edition's start
+when a section has no counterpart. Do not force identical headings or pad a
+summary to preserve switcher anchors. Label summaries and link the full evidence.
 
 **Script paths.** When this skill runs from the installed plugin, invoke the
 scripts as `${CLAUDE_PLUGIN_ROOT}/tools/init_site.py`,
