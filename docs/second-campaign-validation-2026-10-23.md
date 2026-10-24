@@ -3,7 +3,8 @@
 **Status correction after owner review:** the owner found the four versions
 practically identical. The initial fidelity and publication results below remain
 valid, but they did not establish meaningful voice differentiation. The board
-step has been reopened to revise voice definitions and add that acceptance check.
+step was reopened. A subsequent rewrite with a separate distinction check is
+now complete; see [the correction evidence](voice-differentiation-2026-10-23.md).
 
 Tali completed a full three-voice review and publication round on one real
 document from a different campaign. The owner requested this round after
@@ -64,5 +65,5 @@ are published.
 
 The initial round closed with no unresolved fidelity finding or missing artifact.
 Subsequent owner review exposed insufficient voice differentiation, so the
-second-campaign step is active again. The clean-machine installation proof
-remains complete. Target tones are being clarified before a new rewrite.
+second-campaign step was reopened. The subsequent correction is documented in
+the linked evidence above. The clean-machine installation proof remains complete.
