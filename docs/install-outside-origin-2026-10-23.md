@@ -1,9 +1,10 @@
 # Marketplace installation evidence, 2026-10-23
 
-The marketplace installation and shipped checks passed on a second host. The
-step remains blocked: the host's prior clone history is not confirmed, and no
-document from another campaign has been selected for the required voice pass.
-The full second-campaign round was not started.
+The marketplace installation and shipped checks passed on a second host. A
+subsequent real-document voice pass also passed; see the
+[validation continuation](committee-brief-validation-2026-10-23.md). The step
+remains blocked only on confirmation of the host's prior clone history. The
+full second-campaign round was not started.
 
 ## Target and provenance
 
@@ -52,10 +53,11 @@ document, skeleton, or voice copy was created or transferred. Raw installation,
 package metadata, and check output are retained in the author's ignored
 `.lugos-wip/install-outside-origin/` directory.
 
-## Remaining acceptance evidence
+## Acceptance evidence remaining after the initial installation session
 
 Confirm that Lugos-host never held a Tali source clone, or identify another
 qualifying machine. Select one real document from another campaign on that
 machine. Run the installed voice-mutate skill, retain the source, skeleton, and
 voice copy there, and record fidelity and de-tell results plus any corrections.
-Keep this chip as the next step until that evidence exists.
+The validation continuation now supplies the document-pass evidence. Keep this
+chip as the next step until the host's prior clone history is confirmed.

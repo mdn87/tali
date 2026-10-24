@@ -189,7 +189,7 @@
       "aheadOfPrereqs": null,
       "timestamps": {
         "createdAt": "2026-09-05T12:00:00.000Z",
-        "updatedAt": "2026-10-24T01:37:24.734Z"
+        "updatedAt": "2026-10-24T02:31:28.556Z"
       },
       "evidence": [
         {
@@ -221,6 +221,12 @@
           "at": "2026-10-24T01:37:24.734Z",
           "kind": "note",
           "message": "Lugos-host marketplace install and 71 tests passed with one skip; example checks passed. Blocked on prior clone history confirmation and a real campaign document."
+        },
+        {
+          "entryId": "tali:install-outside-origin:brief-proof-2026-10-23",
+          "at": "2026-10-24T02:31:28.556Z",
+          "kind": "note",
+          "message": "Real brief passed 147 fidelity checks and independent review after one wording fix. No strip findings. Only prior clone history confirmation remains."
         }
       ]
     },
