@@ -8,8 +8,8 @@ review found one wording correction, which was applied and checked.
 The owner accepted the rewritten brief and confirmed on 2026-10-23 that
 Lugos-host never held a Tali source clone before the marketplace installation.
 That confirmation closes the remaining provenance requirement, and the board
-step is done. The later full multi-voice campaign round is next and has not
-been started.
+step is done. The later full multi-voice campaign round is also complete; see
+the [second-campaign evidence](second-campaign-validation-2026-10-23.md).
 
 ## Execution evidence
 

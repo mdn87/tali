@@ -4,17 +4,17 @@
   "projectLabel": "Tali",
   "assessmentState": "scored",
   "assessmentScope": "current-milestone",
-  "percentComplete": 85,
-  "milestonePhase": "build-and-validate",
+  "percentComplete": 100,
+  "milestonePhase": "closeout",
   "portfolioGroup": "document-systems",
   "displayPriority": 500,
-  "assessedAt": "2026-10-24T02:54:47.182Z",
+  "assessedAt": "2026-10-24T03:13:29.786Z",
   "confidence": "reported",
   "currentMilestone": "Shipped plugin: voice mutation, multi-voice fidelity review, comparison publishing and PDF build tools, installed through the marketplace and consumed by masq personas.",
-  "remainingSummary": "Clean-machine marketplace installation and real-document voice pass are complete and accepted. Remaining: a full multi-voice round on a second campaign and effort comparison.",
-  "nextChipId": "tali:second-campaign-reuse",
+  "remainingSummary": "All seven milestone steps are complete. A second campaign passed the full three-voice review and publication round; no required work remains.",
+  "nextChipId": null,
   "source": {
-    "label": "Owner accepted the voice pass and confirmed Lugos-host had no prior source clone on 2026-10-23",
+    "label": "Second campaign completed with fidelity checks, independent review, publication checks and an effort comparison",
     "updatedAt": "2026-10-23"
   }
 }

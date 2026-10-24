@@ -242,17 +242,17 @@
       "projectId": "tali",
       "title": "Reuse on a second campaign",
       "summary": "Run the full multi-voice round on a second real document campaign and compare effort against the first.",
-      "stage": "vague",
+      "stage": "done",
       "sequence": 60,
       "prereqs": [
         "tali:install-outside-origin"
       ],
       "linkedRunIds": [],
-      "confidence": "unknown",
+      "confidence": "reported",
       "aheadOfPrereqs": null,
       "timestamps": {
         "createdAt": "2026-09-05T12:00:00.000Z",
-        "updatedAt": "2026-09-27T22:00:00.000Z"
+        "updatedAt": "2026-10-24T03:13:29.786Z"
       },
       "evidence": [
         {
@@ -266,6 +266,12 @@
           "at": "2026-09-27T22:00:00.000Z",
           "kind": "note",
           "message": "Still no campaign selected. No project in the workspace carries a site config for the publish tools besides the example shipped with the plugin."
+        },
+        {
+          "entryId": "tali:second-campaign-reuse:completed-2026-10-23",
+          "at": "2026-10-24T03:13:29.786Z",
+          "kind": "stage-change",
+          "message": "One real document completed a three-voice round: fidelity, independent review, comparison pages, PDFs and redlines passed. Effort compared with owner recall."
         }
       ]
     }

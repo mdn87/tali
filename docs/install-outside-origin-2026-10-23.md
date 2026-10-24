@@ -4,8 +4,8 @@ The marketplace installation and shipped checks passed on a second host. A
 subsequent real-document voice pass also passed; see the
 [validation continuation](committee-brief-validation-2026-10-23.md). The owner
 accepted the result and confirmed that Lugos-host never held a source clone
-before installation. This step is done; the full second-campaign round is next
-and has not been started.
+before installation. This step is done. The subsequent full second-campaign
+round is documented in the [reuse evidence](second-campaign-validation-2026-10-23.md).
 
 ## Target and provenance
 
@@ -60,5 +60,5 @@ package metadata, and check output are retained in the author's ignored
 The validation continuation supplies the real-document voice-pass evidence.
 On 2026-10-23 the owner accepted the rewritten brief and confirmed that Lugos-host
 never held a Tali source clone before the marketplace install. Both acceptance
-requirements are now satisfied. The board marks this step done and names the
-full second-campaign round as the next step; that round remains unstarted.
+requirements are now satisfied. The board marks this step done. The subsequent
+full second-campaign round is also complete, as recorded in the reuse evidence.
