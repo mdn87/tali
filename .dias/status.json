@@ -4,17 +4,17 @@
   "projectLabel": "Tali",
   "assessmentState": "scored",
   "assessmentScope": "current-milestone",
-  "percentComplete": 100,
-  "milestonePhase": "closeout",
+  "percentComplete": 88,
+  "milestonePhase": "build-and-validate",
   "portfolioGroup": "document-systems",
   "displayPriority": 500,
-  "assessedAt": "2026-10-24T03:56:21.472Z",
+  "assessedAt": "2026-10-24T04:05:53.999Z",
   "confidence": "reported",
   "currentMilestone": "Shipped plugin: voice mutation, multi-voice fidelity review, comparison publishing and PDF build tools, installed through the marketplace and consumed by masq personas.",
-  "remainingSummary": "All seven steps are complete. Audience editions now vary selection, length and technical depth, with checks appropriate to each edition.",
-  "nextChipId": null,
+  "remainingSummary": "Seven implementation steps are done. One rollout task remains: update the installed plugin to 0.3.0 and verify the installed audience-depth instructions.",
+  "nextChipId": "tali:update-installed-plugin-030",
   "source": {
-    "label": "Audience depth editions completed with independent coverage review and verified HTML and PDF artifacts",
-    "updatedAt": "2026-10-23"
+    "label": "Session closeout: audience editions accepted for now; local plugin update recorded as the next planned task",
+    "updatedAt": "2026-10-24"
   }
 }

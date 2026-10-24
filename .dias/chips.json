@@ -252,7 +252,7 @@
       "aheadOfPrereqs": null,
       "timestamps": {
         "createdAt": "2026-09-05T12:00:00.000Z",
-        "updatedAt": "2026-10-24T03:56:21.472Z"
+        "updatedAt": "2026-10-24T04:05:53.999Z"
       },
       "evidence": [
         {
@@ -290,6 +290,39 @@
           "at": "2026-10-24T03:56:21.472Z",
           "kind": "stage-change",
           "message": "Created beginner, committee and technical editions at 341, 835 and 2020 words. Independent coverage reviews, full technical fidelity and publication checks passed."
+        },
+        {
+          "entryId": "tali:second-campaign-reuse:closeout-2026-10-24",
+          "at": "2026-10-24T04:05:53.999Z",
+          "kind": "note",
+          "message": "Owner said the audience editions are fine for now. Implementation is complete; updating the installed plugin is tracked separately."
+        }
+      ]
+    },
+    {
+      "schemaVersion": 1,
+      "chipId": "tali:update-installed-plugin-030",
+      "projectId": "tali",
+      "title": "Update installed plugin to 0.3.0",
+      "summary": "Update the local marketplace installation and confirm all three installed skills include the audience-depth instructions.",
+      "stage": "planned",
+      "sequence": 70,
+      "prereqs": [
+        "tali:second-campaign-reuse"
+      ],
+      "linkedRunIds": [],
+      "confidence": "reported",
+      "aheadOfPrereqs": null,
+      "timestamps": {
+        "createdAt": "2026-10-24T04:05:53.999Z",
+        "updatedAt": "2026-10-24T04:05:53.999Z"
+      },
+      "evidence": [
+        {
+          "entryId": "tali:update-installed-plugin-030:planned-2026-10-24",
+          "at": "2026-10-24T04:05:53.999Z",
+          "kind": "note",
+          "message": "Version 0.3.0 is published. The local installed plugin remains at 0.2.0; the completed audience round used the updated repository instructions."
         }
       ]
     }
