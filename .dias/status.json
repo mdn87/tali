@@ -5,16 +5,16 @@
   "assessmentState": "scored",
   "assessmentScope": "current-milestone",
   "percentComplete": 88,
-  "milestonePhase": "build-and-validate",
+  "milestonePhase": "closeout",
   "portfolioGroup": "document-systems",
   "displayPriority": 500,
-  "assessedAt": "2026-10-24T04:05:53.999Z",
+  "assessedAt": "2026-10-25T06:40:22.710Z",
   "confidence": "reported",
   "currentMilestone": "Shipped plugin: voice mutation, multi-voice fidelity review, comparison publishing and PDF build tools, installed through the marketplace and consumed by masq personas.",
-  "remainingSummary": "Seven implementation steps are done. One rollout task remains: update the installed plugin to 0.3.0 and verify the installed audience-depth instructions.",
-  "nextChipId": "tali:update-installed-plugin-030",
+  "remainingSummary": "The local plugin is updated to 0.3.0. Installed audience-depth instructions and all 71 tests passed; no rollout requirement remains. Existing sessions load the update after restart.",
+  "nextChipId": null,
   "source": {
-    "label": "Session closeout: audience editions accepted for now; local plugin update recorded as the next planned task",
-    "updatedAt": "2026-10-24"
+    "label": "Installed 0.3.0 verified; previous human percentage assessment retained",
+    "updatedAt": "2026-10-25"
   }
 }

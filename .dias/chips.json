@@ -305,7 +305,7 @@
       "projectId": "tali",
       "title": "Update installed plugin to 0.3.0",
       "summary": "Update the local marketplace installation and confirm all three installed skills include the audience-depth instructions.",
-      "stage": "planned",
+      "stage": "done",
       "sequence": 70,
       "prereqs": [
         "tali:second-campaign-reuse"
@@ -315,7 +315,7 @@
       "aheadOfPrereqs": null,
       "timestamps": {
         "createdAt": "2026-10-24T04:05:53.999Z",
-        "updatedAt": "2026-10-24T04:05:53.999Z"
+        "updatedAt": "2026-10-25T06:40:22.710Z"
       },
       "evidence": [
         {
@@ -323,6 +323,12 @@
           "at": "2026-10-24T04:05:53.999Z",
           "kind": "note",
           "message": "Version 0.3.0 is published. The local installed plugin remains at 0.2.0; the completed audience round used the updated repository instructions."
+        },
+        {
+          "entryId": "tali:update-installed-plugin-030:verified-2026-10-25",
+          "at": "2026-10-25T06:40:22.710Z",
+          "kind": "stage-change",
+          "message": "Installed 0.3.0 through the plugin manager. All three skills and audience procedure match published source after line-ending normalization; 71 installed tests passed."
         }
       ]
     }
